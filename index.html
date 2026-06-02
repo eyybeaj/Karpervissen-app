@@ -181,7 +181,7 @@ body{background:var(--b);color:var(--t);font-family:'Montserrat',system-ui,sans-
 .menu-arrow{margin-left:auto;color:var(--t3);font-size:20px;}
 
 /* MODALS */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;display:none;align-items:flex-end;justify-content:center;cursor:pointer;}
 .overlay.active{display:flex;}
 .modal{background:var(--b2);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;border-top:1px solid var(--br);}
 .modal::-webkit-scrollbar{display:none;}
@@ -288,13 +288,13 @@ input::placeholder{color:var(--t3);}
     </div>
 
     <!-- Start sessie -->
-    <button class="start-btn" id="start-btn" onclick="openModal('session-modal')">
+    <div class="start-btn" id="start-btn" onclick="openModal('session-modal')" role="button">
       <div class="start-icon">▶</div>
       <div>
         <div style="font-size:16px;font-weight:800;">Start sessie</div>
         <div style="font-size:12px;opacity:.8;margin-top:2px;">Vangsten automatisch groeperen</div>
       </div>
-    </button>
+    </div>
 
     <!-- Week -->
     <div class="card">
@@ -903,6 +903,7 @@ function stopSession(){
   session=null;sessStart=null;
   document.getElementById('sess-banner').classList.remove('active');
   document.getElementById('start-btn').style.display='flex';
+  document.getElementById('start-btn').style.visibility='visible';
   document.getElementById('timer').textContent='00:00:00';
   updateStats();renderVangsten();renderSessies();renderStatistieken();
 }
@@ -983,23 +984,55 @@ function renderSessies(){
     const d=new Date(s.startTime),dur=s.duration||0;
     const sh=s.catches.length?Math.max(...s.catches.map(c=>c.weight)):0;
     const tot=s.catches.reduce((a,c)=>a+c.weight,0);
+    const w=s.weather;
+    const weerHTML=w?`
+      <div style="background:var(--sf);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid var(--br);">
+        <div style="font-size:9px;color:var(--g4);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Weersomstandigheden bij start</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-size:36px;">${w.icon}</div>
+          <div style="flex:1;">
+            <div style="font-size:20px;font-weight:800;line-height:1;">${w.temp}°C</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:2px;">${w.desc||''}</div>
+          </div>
+          <div style="font-size:11px;color:var(--t2);text-align:right;">
+            <div>💨 ${w.wind}km/h ${w.windDir}</div>
+            <div>🌡 ${w.pressure}hPa</div>
+            <div style="margin-top:4px;background:var(--br);padding:3px 8px;border-radius:6px;">${w.city||''}</div>
+          </div>
+        </div>
+      </div>`:
+      `<div style="font-size:11px;color:var(--t3);margin-bottom:10px;">Geen weersdata beschikbaar</div>`;
+
     return`<div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div>
-          <div style="font-size:15px;font-weight:800;">${d.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short'})}</div>
-          <div style="font-size:12px;color:var(--t2);">📍 ${s.location}</div>
+          <div style="font-size:16px;font-weight:800;">${d.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'})}</div>
+          <div style="font-size:12px;color:var(--t2);margin-top:2px;">📍 ${s.location}</div>
         </div>
         <div style="text-align:right;">
           <div style="font-size:12px;color:var(--t3);">${Math.floor(dur/3600000)}u ${Math.floor((dur%3600000)/60000)}m</div>
-          ${s.weather?`<div style="font-size:12px;color:var(--t2);">${s.weather.temp}°C ${s.weather.icon}</div>`:''}
         </div>
       </div>
-      <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">🎣 ${s.bait} · ${s.rods} hengels</div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:10px;">🎣 ${s.bait} · ${s.rods} hengels${s.notes?` · ${s.notes}`:''}</div>
+      ${weerHTML}
       <div class="sess-stats">
         <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--g4);">${s.catches.length}</div><div style="font-size:10px;color:var(--t2);">Vangsten</div></div>
         <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--g4);">${sh?sh+'kg':'—'}</div><div style="font-size:10px;color:var(--t2);">Zwaarste</div></div>
         <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--g4);">${tot.toFixed(1)}kg</div><div style="font-size:10px;color:var(--t2);">Totaal</div></div>
       </div>
+      ${s.catches.length?`
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--br);">
+        <div style="font-size:9px;color:var(--g4);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Vangsten in deze sessie</div>
+        ${s.catches.map(c=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--br);">
+            <div style="font-size:22px;">${{'Schubkarper':'🐟','Spiegelkarper':'🐠','Grasskarper':'🎣'}[c.fish]||'🐟'}</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:800;">${c.weight}kg${c.length?` · ${c.length}cm`:''}</div>
+              <div style="font-size:11px;color:var(--t2);">${c.fish}${c.spot?` · ${c.spot}`:''}</div>
+            </div>
+            <div style="font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;">${new Date(c.time).toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})}</div>
+          </div>`).join('')}
+      </div>`:''}
     </div>`;
   }).join('');
 }
