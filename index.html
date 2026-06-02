@@ -408,12 +408,13 @@ input::placeholder { color: var(--t3); }
     <div class="card" style="background:linear-gradient(135deg,#1A2E0F,#1E3A12);border-color:var(--g3);">
       <div class="lbl">Vooruitblik deze week</div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div>
+        <div style="flex:1;">
           <div style="font-size:12px;color:var(--t2);margin-bottom:3px;">Beste visdag</div>
           <div style="font-size:28px;font-weight:900;" id="best-day">Laden...</div>
         </div>
-        <div id="best-score" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;background:var(--g4);">—</div>
+        <div id="best-score" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;background:var(--g4);flex-shrink:0;">—</div>
       </div>
+      <div id="best-day-expl"></div>
     </div>
 
     <div class="card">
@@ -736,16 +737,61 @@ function renderHome() {
     if(s2.s>bS){bS=s2.s;bI=i;}
   }
   var bd=W.daily[bI];
+  var bdScore=score({temp:Math.round((bd.min+bd.max)/2),wind:bd.windMax,windDir:bd.windDir,pressure:bd.pressure,code:bd.code});
+
+  // Bouw uitleg voor beste dag
+  var bdReasons=bdScore.ins.filter(function(i){return i.c==='g';}).map(function(i){return i.t;}).join(' · ');
+  var bdWarnings=bdScore.ins.filter(function(i){return i.c==='r'||i.c==='a';}).map(function(i){return i.t;});
+
   document.getElementById('best-day').textContent = bI===0?'Vandaag':bd.dayFull+' '+bd.date.getDate()+' '+MONTHS[bd.date.getMonth()];
   var bse=document.getElementById('best-score');
   bse.textContent=bS;
   bse.style.background=['#E55353','#E58A53','#B8963E','#4CAF50','#2D8B3A'][bS-1];
 
+  // Uitleg onder beste dag
+  var bdExpl=document.getElementById('best-day-expl');
+  if(bdExpl) {
+    bdExpl.innerHTML=
+      (bdReasons?'<div style="font-size:11px;color:var(--g4);margin-top:8px;line-height:1.6;">✓ '+bdReasons+'</div>':'')+
+      (bdWarnings.length?'<div style="font-size:11px;color:var(--t3);margin-top:4px;line-height:1.6;">⚠ '+bdWarnings.join(' · ')+'</div>':'');
+  }
+
   var LABELS=['Slecht','Matig','Redelijk','Goed','Uitstekend'];
   document.getElementById('week-view').innerHTML = W.daily.slice(0,7).map(function(d,i) {
     var mw={temp:Math.round((d.min+d.max)/2),wind:d.windMax,windDir:d.windDir,pressure:d.pressure,code:d.code};
     var sc2=score(mw);
-    return '<div class="week-row"><div class="week-day'+(i===0?' td':'')+'">'+d.day+'</div><div style="font-size:20px;width:28px;text-align:center;">'+wi(d.code)+'</div><div style="font-size:11px;color:var(--t2);width:60px;font-family:\'DM Mono\',monospace;">'+d.min+'°/'+d.max+'°</div><div style="flex:1;font-size:11px;color:var(--t3);">'+d.windMax+'km '+d.windDir+' '+d.moon+'</div><div class="pill" style="background:'+sc2.c+';">'+sc2.s+'</div></div>';
+    var avgTemp=Math.round((d.min+d.max)/2);
+
+    // Bouw feitelijke uitleg op basis van echte data
+    var reasons=[];
+    if(avgTemp>=18&&avgTemp<=22) reasons.push(avgTemp+'°C ideaal');
+    else if(avgTemp>=15) reasons.push(avgTemp+'°C goed');
+    else if(avgTemp>22&&avgTemp<=25) reasons.push(avgTemp+'°C warm');
+    else reasons.push(avgTemp+'°C '+( avgTemp<10?'te koud':'koel'));
+
+    var warm=['ZW','W','Z'].indexOf(d.windDir)>=0;
+    var cold=['N','NO','O'].indexOf(d.windDir)>=0;
+    if(d.windMax<=20) reasons.push(d.windMax+'km '+d.windDir+(warm?' ✓':''));
+    else reasons.push(d.windMax+'km '+d.windDir+(cold?' ↓':''));
+
+    if(d.pressure>=1015) reasons.push(d.pressure+'hPa stabiel');
+    else if(d.pressure<1005) reasons.push(d.pressure+'hPa laag');
+
+    var isBest = i===bI;
+
+    return '<div style="padding:12px 0;border-bottom:1px solid var(--br);"+(i===6?";border-bottom:none":"")+">'+
+      '<div style="display:flex;align-items:center;gap:10px;">'+
+        '<div class="week-day'+(i===0?' td':'')+'">'+d.day+'</div>'+
+        '<div style="font-size:20px;width:26px;text-align:center;">'+wi(d.code)+'</div>'+
+        '<div style="font-size:11px;color:var(--t2);width:56px;font-family:\'DM Mono\',monospace;">'+d.min+'°/'+d.max+'°</div>'+
+        '<div style="flex:1;font-size:10px;color:var(--t3);">'+d.moon+'</div>'+
+        (isBest?'<div style="font-size:9px;color:var(--g4);font-weight:700;margin-right:4px;">BEST</div>':'')+
+        '<div class="pill" style="background:'+sc2.c+';">'+sc2.s+'</div>'+
+      '</div>'+
+      '<div style="margin-top:5px;margin-left:36px;font-size:11px;color:'+(sc2.s>=4?'var(--g4)':sc2.s===3?'var(--t2)':'var(--t3)')+';">'+
+        reasons.join(' · ')+
+      '</div>'+
+    '</div>';
   }).join('');
 
   document.getElementById('sm-snap').innerHTML = '<div class="wsnap"><span style="font-size:34px;">'+wi(W.code)+'</span><div style="flex:1;"><div style="font-size:26px;font-weight:900;line-height:1;">'+W.temp+'°C</div><div style="font-size:11px;color:var(--t2);font-family:\'DM Mono\',monospace;">'+W.wind+'km/h '+W.windDir+' · '+W.pressure+'hPa</div></div><div style="background:'+sc.c+'22;color:'+sc.c+';font-size:11px;font-weight:800;padding:6px 10px;border-radius:10px;text-align:center;">Score<br><span style="font-size:20px;">'+sc.s+'</span></div></div>';
