@@ -985,18 +985,19 @@ function renderWeer() {
   var dagHTML=W.daily.map(function(d) {
     var mw={temp:Math.round((d.min+d.max)/2),wind:d.windMax,windDir:d.windDir,pressure:d.pressure,code:d.code};
     var sc2=score(mw);
-    return '<div class="dag-row">'+
-      '<div style="width:44px;flex-shrink:0;"><div style="font-size:13px;font-weight:700;">'+d.day+'</div><div style="font-size:10px;color:var(--t2);">'+d.dateStr+'</div></div>'+
-      '<div style="font-size:22px;width:30px;text-align:center;flex-shrink:0;">'+wi(d.code)+'</div>'+
-      '<div style="width:56px;flex-shrink:0;"><div style="font-size:17px;font-weight:800;line-height:1;">'+d.max+'°</div><div style="font-size:11px;color:var(--t2);">'+d.min+'°</div></div>'+
-      '<div style="flex:1;min-width:0;">'+
-        '<div style="font-size:10px;color:var(--t2);">💨 '+d.windMax+'km '+d.windDir+'</div>'+
-        '<div style="font-size:10px;color:var(--rain);">💧 '+d.rain+'mm</div>'+
-        '<div style="font-size:10px;color:var(--t3);">↑'+d.sunrise+' ↓'+d.sunset+'</div>'+
+    var times2 = bestFishingTimes(d.sunrise, d.sunset);
+    return '<div style="display:grid;grid-template-columns:44px 26px 52px 1fr auto;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid var(--br);">'+
+      '<div><div style="font-size:13px;font-weight:700;color:'+(i===0?'var(--g4)':'var(--t)')+'">'+d.day+'</div><div style="font-size:10px;color:var(--t3);">'+d.dateStr+'</div></div>'+
+      '<div style="font-size:20px;text-align:center;">'+wi(d.code)+'</div>'+
+      '<div><div style="font-size:16px;font-weight:800;line-height:1;">'+d.max+'°</div><div style="font-size:11px;color:var(--t2);">'+d.min+'°</div></div>'+
+      '<div>'+
+        '<div style="font-size:10px;color:var(--t2);">💨 '+d.windMax+'km '+d.windDir+'  '+d.moon+'</div>'+
+        '<div style="font-size:10px;color:var(--rain);">💧 '+d.rain+'mm · '+d.pressure+'hPa</div>'+
+        '<div style="font-size:10px;color:var(--t3);">⏰ '+times2.morning.split('–')[0].trim()+' / '+times2.evening.split('–')[0].trim()+'</div>'+
       '</div>'+
-      '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">'+
-        '<div style="font-size:14px;">'+d.moon+'</div>'+
-        '<div class="dag-s" style="background:'+sc2.c+';">'+sc2.s+'</div>'+
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">'+
+        '<div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;background:'+sc2.c+';">'+sc2.s+'</div>'+
+        '<div style="font-size:8px;color:'+sc2.c+';font-weight:700;text-align:center;">'+['Slecht','Matig','Red.','Goed','Top'][sc2.s-1]+'</div>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -1030,7 +1031,7 @@ function renderWeer() {
       '<div class="lbl">Per uur</div>'+
       '<div class="hour-scroll">'+hHTML+'</div>'+
     '</div>'+
-    '<div class="card"><div class="lbl">14-daagse voorspelling</div>'+dagHTML+'</div>';
+    '<div class="card"><div class="lbl">14-daagse voorspelling</div><div style="padding:0 2px;">'+dagHTML+'</div></div>';
 }
 
 function go(page, btn) {
