@@ -3,228 +3,403 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KarpLog">
+<meta name="theme-color" content="#1A3A0A">
 <title>KarpLog</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--a:#F5A623;--b:#111214;--b2:#1A1C1F;--sf:#252830;--br:#2E3138;--t:#F0F0F0;--t2:#9A9FA8;--t3:#5A5F68;--g:#4CAF6A;--r:#E55353;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--b);color:var(--t);font-family:'DM Sans',system-ui,sans-serif;max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;}
-.header{background:var(--a);padding:52px 20px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo{font-family:'Bebas Neue',serif;font-size:26px;color:#fff;letter-spacing:1px;}
-.logo span{color:var(--b);}
-.main{padding:14px 14px 100px;}
-.card{background:var(--b2);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--br);}
-.label{font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--a);text-transform:uppercase;margin-bottom:8px;}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--b2);border-top:1px solid var(--br);display:grid;grid-template-columns:repeat(4,1fr);padding:10px 0 24px;z-index:100;}
+:root{
+  --g1:#1A3A0A;    /* donkergroen header */
+  --g2:#2D5016;    /* primair groen */
+  --g3:#3D6B1F;    /* medium groen */
+  --g4:#4CAF50;    /* helder groen accent */
+  --g5:#A8D5A2;    /* licht groen */
+  --gold:#B8963E;  /* goud accent */
+  --gold2:#D4AF5A; /* licht goud */
+  --blue:#2E5F7A;  /* water blauw */
+  --blue2:#3D7A9A; /* licht blauw */
+  --b:#0D1A0A;     /* achtergrond */
+  --b2:#111F0D;    /* kaart */
+  --b3:#162610;    /* kaart hover */
+  --sf:#1C2E14;    /* surface */
+  --br:#243B18;    /* border */
+  --t:#E8F5E3;     /* tekst */
+  --t2:#8BAF7A;    /* subtekst */
+  --t3:#4A6B3A;    /* dimme tekst */
+  --r:#E55353;     /* rood */
+  --rain:#4A9EFF;  /* regen blauw */
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--b);color:var(--t);font-family:'Montserrat',system-ui,sans-serif;max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 100%);padding:52px 20px 16px;flex-shrink:0;border-bottom:1px solid var(--br);}
+.header-inner{display:flex;align-items:center;justify-content:space-between;}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-img{width:36px;height:36px;object-fit:contain;}
+.logo-text{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+.logo-text span{color:var(--gold2);}
+.header-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;}
+
+/* SCROLL */
+.scroll-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll-wrap::-webkit-scrollbar{display:none;}
+.main{padding:14px 14px 110px;}
+
+/* NAV */
+.nav{background:var(--b2);border-top:1px solid var(--br);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 0 24px;flex-shrink:0;}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;}
-.nav-icon{font-size:20px;}
-.nav-label{font-size:10px;font-weight:500;color:var(--t3);}
-.nav-item.active .nav-label{color:var(--a);}
+.nav-icon{font-size:19px;}
+.nav-label{font-size:9px;font-weight:600;color:var(--t3);letter-spacing:0.3px;}
+.nav-item.active .nav-label{color:var(--g4);}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 4px rgba(76,175,80,.5));}
+
+/* PAGES */
 .page{display:none;}.page.active{display:block;}
-.weather-card{background:linear-gradient(135deg,#1E2230,#252A38);border:1px solid #2A3050;}
-.w-temp{font-family:'Bebas Neue',serif;font-size:58px;line-height:1;}
-.forecast{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:14px;padding-top:12px;border-top:1px solid var(--br);}
-.forecast-day{text-align:center;}
-.forecast-day .dn{font-size:11px;color:var(--t2);}
-.forecast-day .di{font-size:18px;margin:3px 0;}
-.forecast-day .dt{font-size:10px;color:var(--t2);}
-.score-badge{display:flex;align-items:center;gap:12px;background:var(--sf);border-radius:10px;padding:10px 14px;margin-bottom:8px;}
-.score-num{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',serif;font-size:24px;color:#fff;}
-.score-bar-wrap{height:5px;background:var(--br);border-radius:3px;margin-bottom:10px;overflow:hidden;}
-.score-bar{height:100%;border-radius:3px;transition:width .6s;}
-.insights{background:var(--sf);border-radius:10px;padding:12px;}
-.insight{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--br);font-size:13px;}
+
+/* CARDS */
+.card{background:var(--b2);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--br);}
+.card-green{background:linear-gradient(135deg,#1A2E0F,#1E3A12);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--g3);}
+.lbl{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--g4);text-transform:uppercase;margin-bottom:10px;}
+
+/* SCORE */
+.score-row{display:flex;align-items:center;gap:14px;}
+.score-badge{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;flex-shrink:0;}
+.score-bar-wrap{height:6px;background:var(--br);border-radius:3px;margin:10px 0;overflow:hidden;}
+.score-bar{height:100%;border-radius:3px;transition:width .8s ease;}
+.insight-list{background:var(--sf);border-radius:12px;padding:4px 14px;margin-top:2px;}
+.insight{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--br);font-size:12px;line-height:1.5;color:var(--t);}
 .insight:last-child{border-bottom:none;}
-.dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
-.week-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--br);}
+.dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+
+/* WEEK */
+.week-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--br);gap:10px;}
 .week-row:last-child{border-bottom:none;}
-.week-bar-wrap{flex:1;height:6px;background:var(--br);border-radius:3px;overflow:hidden;}
-.week-bar{height:100%;border-radius:3px;}
-.week-score{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',serif;font-size:15px;color:#fff;flex-shrink:0;}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.week-day{width:36px;font-size:12px;font-weight:700;color:var(--t2);flex-shrink:0;}
+.week-day.today{color:var(--g4);}
+.week-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center;}
+.week-temps{font-size:11px;color:var(--t2);width:60px;flex-shrink:0;font-family:'DM Mono',monospace;}
+.week-score-pill{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
+
+/* HOURLY */
+.hourly-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+.hourly-scroll::-webkit-scrollbar{display:none;}
+.hour-card{background:var(--sf);border-radius:12px;padding:10px 8px;text-align:center;min-width:58px;flex-shrink:0;border:1px solid var(--br);}
+.hour-card.now{background:var(--g2);border-color:var(--g3);}
+.hour-card.now .hc-time,.hour-card.now .hc-temp,.hour-card.now .hc-wind{color:#fff;}
+.hc-time{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:4px;}
+.hc-icon{font-size:19px;margin:3px 0;}
+.hc-temp{font-size:15px;font-weight:700;color:var(--t);}
+.hc-wind{font-size:10px;color:var(--t2);margin-top:2px;}
+
+/* NEERSLAG GRAFIEK */
+.rain-graph-wrap{position:relative;height:120px;background:var(--sf);border-radius:12px;overflow:hidden;margin-top:10px;}
+.rain-line{position:absolute;left:0;right:0;font-size:9px;color:rgba(255,255,255,.25);padding-right:6px;text-align:right;pointer-events:none;}
+.rain-bars{position:absolute;bottom:0;left:0;right:0;height:100%;display:flex;align-items:flex-end;gap:2px;padding:0 4px;}
+.rain-bar{flex:1;border-radius:2px 2px 0 0;transition:height .4s ease;min-height:2px;}
+.rain-now-line{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,80,80,.7);border-radius:1px;}
+.rain-times{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:6px;font-family:'DM Mono',monospace;}
+.rain-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.rain-stat{background:var(--sf);border-radius:10px;padding:10px;text-align:center;}
+.rain-stat-val{font-size:18px;font-weight:800;color:var(--t);}
+.rain-stat-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.rain-toggle{display:flex;gap:6px;margin-bottom:14px;}
+.rain-toggle-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--br);background:var(--sf);color:var(--t2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+.rain-toggle-btn.active{background:var(--g2);border-color:var(--g3);color:#fff;}
+
+/* DAG RIJEN */
+.dag-row{background:var(--sf);border-radius:12px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.dag-date{width:48px;flex-shrink:0;}
+.dag-day{font-size:12px;font-weight:700;}
+.dag-dnum{font-size:10px;color:var(--t2);}
+.dag-icon{font-size:22px;width:28px;text-align:center;flex-shrink:0;}
+.dag-temps{width:60px;flex-shrink:0;}
+.dag-max{font-size:18px;font-weight:800;line-height:1;}
+.dag-min{font-size:11px;color:var(--t2);}
+.dag-info{flex:1;}
+.dag-wind{font-size:10px;color:var(--t2);}
+.dag-rain{font-size:10px;color:var(--rain);}
+.dag-moon{font-size:16px;flex-shrink:0;}
+.dag-score{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
 .stat-card{background:var(--b2);border-radius:12px;padding:12px;border:1px solid var(--br);}
-.stat-val{font-family:'Bebas Neue',serif;font-size:26px;line-height:1;}
-.start-btn{background:var(--b2);border:1px solid var(--br);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;width:100%;margin-bottom:12px;color:var(--t);text-align:left;}
-.start-icon{width:44px;height:44px;background:var(--a);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.session-banner{background:linear-gradient(135deg,#1A2A1A,#1E321E);border:1px solid #2A5A2A;border-radius:16px;padding:14px 16px;margin-bottom:12px;display:none;}
-.session-banner.active{display:block;}
-.pulse{width:8px;height:8px;background:var(--g);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
+.stat-val{font-size:28px;font-weight:900;line-height:1;color:var(--t);}
+.stat-unit{font-size:11px;color:var(--t2);margin-top:2px;}
+
+/* START SESSIE */
+.start-btn{background:linear-gradient(135deg,var(--g2),var(--g3));border:1px solid var(--g3);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;width:100%;margin-bottom:12px;color:#fff;text-align:left;box-shadow:0 4px 20px rgba(45,80,22,.4);}
+.start-btn:active{opacity:.9;}
+.start-icon{width:48px;height:48px;background:rgba(255,255,255,.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+
+/* BESTE DAG */
+.best-day-card{display:flex;align-items:center;justify-content:space-between;}
+
+/* SESSION BANNER */
+.sess-banner{background:linear-gradient(135deg,#0D2010,#122815);border:1px solid #2A5A2A;border-radius:16px;padding:14px 16px;margin-bottom:12px;display:none;}
+.sess-banner.active{display:block;}
+.pulse{width:8px;height:8px;background:var(--g4);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.5);}}
 .sess-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
-.btn-catch{padding:10px;border-radius:8px;border:none;background:var(--a);color:#fff;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;}
-.btn-stop{padding:10px;border-radius:8px;border:1px solid var(--br);background:var(--sf);color:var(--r);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.btn-catch{padding:12px;border-radius:10px;border:none;background:var(--g2);color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+.btn-stop{padding:12px;border-radius:10px;border:1px solid var(--br);background:var(--sf);color:var(--r);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+
+/* TABS */
+.tab-switch{display:grid;grid-template-columns:1fr 1fr;background:var(--sf);border-radius:12px;padding:4px;margin-bottom:14px;}
+.tab-btn{padding:10px;border-radius:9px;border:none;background:transparent;color:var(--t2);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.tab-btn.active{background:var(--b2);color:var(--t);box-shadow:0 1px 4px rgba(0,0,0,.4);}
+
+/* FAB */
+.fab{position:fixed;bottom:90px;right:20px;width:56px;height:56px;background:linear-gradient(135deg,var(--g2),var(--g3));border-radius:16px;border:none;color:#fff;font-size:28px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(45,80,22,.5);z-index:50;}
+
+/* VANGST ITEMS */
+.catch-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--br);}
+.catch-item:last-child{border-bottom:none;}
+.catch-icon{font-size:30px;}
+.catch-weight{font-size:22px;font-weight:800;line-height:1;color:var(--t);}
+.catch-meta{font-size:11px;color:var(--t2);margin-top:2px;}
+.catch-time{margin-left:auto;font-size:10px;color:var(--t3);text-align:right;font-family:'DM Mono',monospace;}
+
+/* SESSIE ITEMS */
+.sess-stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:10px;padding-top:10px;border-top:1px solid var(--br);}
+
+/* STATISTIEKEN */
+.stat2-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat2-card{background:var(--b2);border-radius:14px;padding:16px;border:1px solid var(--br);}
+.stat2-val{font-size:40px;font-weight:900;color:var(--g4);line-height:1;}
+
+/* MEER MENU */
+.menu-group{background:var(--b2);border-radius:14px;margin-bottom:12px;border:1px solid var(--br);overflow:hidden;}
+.menu-item{display:flex;align-items:center;gap:14px;padding:16px;border-bottom:1px solid var(--br);cursor:pointer;}
+.menu-item:last-child{border-bottom:none;}
+.menu-item:active{background:var(--sf);}
+.menu-icon{width:34px;height:34px;background:var(--sf);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.menu-arrow{margin-left:auto;color:var(--t3);font-size:20px;}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;display:none;align-items:flex-end;justify-content:center;}
 .overlay.active{display:flex;}
-.modal{background:var(--b2);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto;}
-.handle{width:36px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 20px;}
-.modal-title{font-family:'Bebas Neue',serif;font-size:28px;margin-bottom:4px;}
-.modal-sub{font-size:13px;color:var(--t2);margin-bottom:16px;}
-input{width:100%;background:var(--sf);border:1px solid var(--br);border-radius:10px;padding:12px 14px;color:var(--t);font-family:inherit;font-size:14px;outline:none;margin-bottom:10px;}
-input:focus{border-color:var(--a);}
+.modal{background:var(--b2);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;border-top:1px solid var(--br);}
+.modal::-webkit-scrollbar{display:none;}
+.handle{width:40px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 22px;}
+.modal-title{font-size:26px;font-weight:900;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--t2);margin-bottom:20px;}
+.field-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--g4);text-transform:uppercase;margin-bottom:6px;display:block;}
+input,select{width:100%;background:var(--sf);border:1px solid var(--br);border-radius:12px;padding:14px;color:var(--t);font-family:inherit;font-size:14px;font-weight:500;outline:none;margin-bottom:12px;}
+input:focus,select:focus{border-color:var(--g4);}
 input::placeholder{color:var(--t3);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.btn-primary{width:100%;padding:15px;border-radius:10px;border:none;font-family:'Bebas Neue',serif;font-size:20px;letter-spacing:1px;cursor:pointer;background:var(--a);color:#fff;margin-top:4px;}
-.btn-sec{width:100%;padding:11px;border-radius:10px;border:1px solid var(--br);background:transparent;color:var(--t2);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;}
+.btn-primary{width:100%;padding:16px;border-radius:14px;border:none;font-family:inherit;font-size:16px;font-weight:800;letter-spacing:0.5px;cursor:pointer;background:linear-gradient(135deg,var(--g2),var(--g3));color:#fff;margin-top:6px;box-shadow:0 4px 16px rgba(45,80,22,.3);}
+.btn-sec{width:100%;padding:13px;border-radius:14px;border:1px solid var(--br);background:transparent;color:var(--t2);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;}
 .fish-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-.fish-opt{background:var(--sf);border:1px solid var(--br);border-radius:10px;padding:11px 6px;text-align:center;cursor:pointer;}
-.fish-opt.sel{border-color:var(--a);background:rgba(245,166,35,.12);}
-.fish-icon{font-size:22px;}
-.fish-name{font-size:10px;color:var(--t2);margin-top:3px;}
-.catch-card{display:flex;align-items:center;gap:12px;}
-.catch-icon{font-size:28px;}
-.catch-weight{font-family:'Bebas Neue',serif;font-size:22px;line-height:1;}
-.catch-meta{font-size:11px;color:var(--t2);}
-.catch-time{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);text-align:right;}
-.sess-hist{display:grid;grid-template-columns:repeat(3,1fr);padding-top:10px;border-top:1px solid var(--br);}
-.sh-val{font-family:'Bebas Neue',serif;font-size:20px;color:var(--a);}
-.sh-lbl{font-size:10px;color:var(--t2);}
-.weather-snapshot{background:var(--sf);border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;border:1px solid var(--a);margin-bottom:16px;}
-.comm{display:flex;gap:8px;}
-.comm-half{flex:1;background:var(--sf);border-radius:10px;padding:12px;}
-.fish-bar{margin-bottom:5px;}
-.fb-row{display:flex;justify-content:space-between;font-size:10px;color:var(--t2);margin-bottom:2px;}
-.fb-track{height:3px;background:var(--br);border-radius:2px;overflow:hidden;}
-.fb-fill{height:100%;background:var(--a);}
-.stat2-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
-.stat2-card{background:var(--b2);border-radius:16px;padding:16px;border:1px solid var(--br);}
-.stat2-val{font-family:'Bebas Neue',serif;font-size:38px;color:var(--a);line-height:1;}
-.empty{text-align:center;color:var(--t3);padding:40px;font-size:14px;}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--g);color:#fff;padding:11px 20px;border-radius:50px;font-size:13px;font-weight:600;z-index:300;white-space:nowrap;opacity:0;transition:all .3s;pointer-events:none;}
+.fish-opt{background:var(--sf);border:1px solid var(--br);border-radius:14px;padding:12px 6px;text-align:center;cursor:pointer;transition:all .15s;}
+.fish-opt.sel{border-color:var(--g4);background:rgba(76,175,80,.1);}
+.fish-opt-icon{font-size:26px;}
+.fish-opt-name{font-size:10px;color:var(--t2);margin-top:4px;font-weight:600;}
+.weather-snap{background:var(--sf);border-radius:14px;padding:14px;display:flex;align-items:center;gap:14px;border:1px solid var(--g3);margin-bottom:20px;}
+
+/* COMMUNITY */
+.comm-wrap{display:flex;gap:8px;}
+.comm-half{flex:1;background:var(--sf);border-radius:12px;padding:14px;}
+.fish-bar{margin-bottom:8px;}
+.fb-row{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:3px;font-weight:500;}
+.fb-track{height:4px;background:var(--br);border-radius:2px;overflow:hidden;}
+.fb-fill{height:100%;background:linear-gradient(90deg,var(--g2),var(--g4));border-radius:2px;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;}
+.empty-icon{font-size:56px;margin-bottom:16px;}
+.empty-title{font-size:20px;font-weight:800;margin-bottom:8px;}
+.empty-sub{font-size:13px;color:var(--t2);margin-bottom:24px;line-height:1.5;}
+.empty-btn{background:linear-gradient(135deg,var(--g2),var(--g3));border:none;border-radius:50px;padding:14px 32px;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+
+/* TOAST */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--g2);color:#fff;padding:12px 22px;border-radius:50px;font-size:13px;font-weight:700;z-index:300;white-space:nowrap;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid var(--g3);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.loading-state{text-align:center;padding:24px 0;}
-.loading-state .li{font-size:40px;margin-bottom:10px;}
-.error-state{text-align:center;padding:20px 0;}
-.retry-btn{background:var(--a);border:none;border-radius:8px;padding:10px 22px;color:#fff;font-weight:600;cursor:pointer;font-size:13px;font-family:inherit;}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <div class="logo">Karp<span>Log</span></div>
-  <div style="font-size:20px">🎁</div>
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <img class="logo-img" src="https://raw.githubusercontent.com/eyybeaj/Karpervissen-app/main/logo.png" onerror="this.style.display='none'" alt="KarpLog">
+      <div class="logo-text">Karp<span>Log</span></div>
+    </div>
+    <div class="header-icon">⚙️</div>
+  </div>
 </div>
 
+<!-- SCROLL -->
+<div class="scroll-wrap" id="scroll-wrap">
 <div class="main">
-  <!-- Sessie banner -->
-  <div class="session-banner" id="sess-banner">
+
+  <!-- SESSIE BANNER -->
+  <div class="sess-banner" id="sess-banner">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--g)">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--g4);">
         <span class="pulse"></span> Sessie actief
       </div>
-      <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--t2)" id="timer">00:00:00</span>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--t2);" id="timer">00:00:00</span>
     </div>
-    <div style="font-size:12px;color:var(--t2);margin-bottom:10px;" id="sess-info">📍 — · 🐟 0 · ⚖️ 0kg</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:2px;" id="sess-loc">📍 —</div>
+    <div style="font-size:12px;color:var(--t2);" id="sess-stats-line">🐟 0 vangsten · ⚖️ 0 kg</div>
     <div class="sess-btns">
       <button class="btn-catch" onclick="openModal('catch-modal')">+ Vangst loggen</button>
-      <button class="btn-stop" onclick="stopSession()">■ Stoppen</button>
+      <button class="btn-stop" onclick="stopSession()">■ Sessie stoppen</button>
     </div>
   </div>
 
   <!-- HOME -->
   <div class="page active" id="page-home">
-    <!-- Weer -->
-    <div class="card weather-card" id="weather-card">
-      <div class="loading-state">
-        <div class="li">⏳</div>
-        <div style="color:var(--t2);font-size:14px;font-weight:500;">Weersdata ophalen...</div>
-        <div style="color:var(--t3);font-size:12px;margin-top:6px;">Even geduld</div>
+
+    <!-- Beste visdag -->
+    <div class="card-green">
+      <div class="lbl">Vooruitblik deze week</div>
+      <div class="best-day-card">
+        <div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:3px;">Beste visdag</div>
+          <div style="font-size:30px;font-weight:900;line-height:1;" id="best-day-text">Laden...</div>
+        </div>
+        <div id="best-day-score" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;background:var(--g4);">—</div>
       </div>
     </div>
 
-    <!-- Score -->
+    <!-- Score vandaag -->
     <div class="card">
-      <div class="label">Vis Score Vandaag</div>
-      <div class="score-badge">
-        <div class="score-num" id="score-num" style="background:#F5A623">3</div>
-        <div>
-          <div style="font-size:16px;font-weight:600;" id="score-title">Laden...</div>
-          <div style="font-size:12px;color:var(--t2);" id="score-sub">Weersdata ophalen</div>
+      <div class="lbl">Vis Score Vandaag</div>
+      <div class="score-row">
+        <div class="score-badge" id="score-num" style="background:var(--g2);">—</div>
+        <div style="flex:1;">
+          <div style="font-size:18px;font-weight:800;" id="score-title">Laden...</div>
+          <div style="font-size:12px;color:var(--t2);margin-top:2px;" id="score-sub">Weersdata ophalen</div>
         </div>
+        <div style="font-size:28px;" id="score-icon">⏳</div>
       </div>
       <div class="score-bar-wrap">
-        <div class="score-bar" id="score-bar" style="width:60%;background:#F5A623;"></div>
+        <div class="score-bar" id="score-bar" style="width:0%;background:var(--g4);"></div>
       </div>
-      <div class="insights" id="insights"></div>
-    </div>
-
-    <!-- Week -->
-    <div class="card">
-      <div class="label">Beste visdagen deze week</div>
-      <div id="week-view" style="color:var(--t3);font-size:13px;text-align:center;padding:12px;">Laden...</div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card"><div class="label">Vangsten</div><div class="stat-val" id="s-n">0</div><div style="font-size:11px;color:var(--t2);">2026</div></div>
-      <div class="stat-card"><div class="label">Zwaarste</div><div class="stat-val" id="s-h">0</div><div style="font-size:11px;color:var(--t2);">kg</div></div>
-      <div class="stat-card"><div class="label">Gem.</div><div class="stat-val" id="s-a">0</div><div style="font-size:11px;color:var(--t2);">kg</div></div>
+      <div class="insight-list" id="insights"><div style="padding:10px;font-size:12px;color:var(--t3);text-align:center;">Weersdata laden...</div></div>
     </div>
 
     <!-- Start sessie -->
     <button class="start-btn" id="start-btn" onclick="openModal('session-modal')">
       <div class="start-icon">▶</div>
-      <div><div style="font-size:16px;font-weight:600;">Start sessie</div><div style="font-size:12px;color:var(--t2);">Vangsten automatisch groeperen</div></div>
+      <div>
+        <div style="font-size:16px;font-weight:800;">Start sessie</div>
+        <div style="font-size:12px;opacity:.8;margin-top:2px;">Vangsten automatisch groeperen</div>
+      </div>
     </button>
+
+    <!-- Week -->
+    <div class="card">
+      <div class="lbl">Beste visdagen — 7 dagen</div>
+      <div id="week-view"><div style="color:var(--t3);font-size:12px;text-align:center;padding:16px;">Laden...</div></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="lbl">Vangsten</div><div class="stat-val" id="s-n">0</div><div class="stat-unit">2026</div></div>
+      <div class="stat-card"><div class="lbl">Zwaarste</div><div class="stat-val" id="s-h">0</div><div class="stat-unit">kg</div></div>
+      <div class="stat-card"><div class="lbl">Gemiddeld</div><div class="stat-val" id="s-a">0</div><div class="stat-unit">kg</div></div>
+    </div>
 
     <!-- Community -->
     <div class="card">
-      <div class="label">Community · Week <span id="wk-num">-</span></div>
-      <div class="comm">
+      <div class="lbl">Community · Week <span id="wk-num">-</span></div>
+      <div class="comm-wrap">
         <div class="comm-half">
-          <div style="font-size:9px;color:var(--a);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Week <span id="wk-num2">-</span></div>
-          <div style="font-family:'Bebas Neue',serif;font-size:34px;line-height:1.1;">1227</div>
-          <div style="font-size:11px;color:var(--t2);margin-bottom:10px;">Vangsten community</div>
+          <div style="font-size:9px;color:var(--g4);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Week <span id="wk-num2">-</span></div>
+          <div style="font-size:36px;font-weight:900;line-height:1.1;margin:4px 0;">1227</div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:12px;">Vangsten community</div>
           <div class="fish-bar"><div class="fb-row"><span>Schubkarper</span><span>53%</span></div><div class="fb-track"><div class="fb-fill" style="width:53%"></div></div></div>
           <div class="fish-bar"><div class="fb-row"><span>Spiegelkarper</span><span>36%</span></div><div class="fb-track"><div class="fb-fill" style="width:36%"></div></div></div>
           <div class="fish-bar"><div class="fb-row"><span>Grasskarper</span><span>11%</span></div><div class="fb-track"><div class="fb-fill" style="width:11%"></div></div></div>
         </div>
         <div class="comm-half">
-          <div style="font-size:9px;color:var(--a);font-weight:600;letter-spacing:1px;text-transform:uppercase;" id="month-lbl">-</div>
-          <div style="font-family:'Bebas Neue',serif;font-size:18px;margin-bottom:2px;">JOUW MAAND</div>
-          <div style="font-size:11px;color:var(--t2);margin-bottom:12px;">Jouw vangsten</div>
-          <div style="margin-bottom:8px;"><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Vangsten</div><div style="font-family:'Bebas Neue',serif;font-size:22px;" id="month-n">0</div></div>
-          <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Zwaarste</div><div style="font-size:15px;font-weight:600;color:var(--t2);" id="month-h">—</div></div>
+          <div style="font-size:9px;color:var(--g4);font-weight:700;letter-spacing:1px;text-transform:uppercase;" id="month-lbl">-</div>
+          <div style="font-size:18px;font-weight:900;margin:4px 0 2px;">TERUGBLIK</div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:14px;">Jouw vangsten</div>
+          <div style="margin-bottom:10px;"><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;font-weight:600;">VANGSTEN</div><div style="font-size:22px;font-weight:900;" id="month-n">0 vissen</div></div>
+          <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;font-weight:600;">ZWAARSTE</div><div style="font-size:15px;font-weight:700;color:var(--t2);" id="month-h">—</div></div>
         </div>
       </div>
     </div>
+
+  </div><!-- /home -->
+
+  <!-- WEER -->
+  <div class="page" id="page-weer">
+    <div id="weer-content"><div style="text-align:center;color:var(--t2);padding:40px;font-size:13px;">Weersdata laden...</div></div>
   </div>
 
   <!-- VANGSTEN -->
-  <div class="page" id="page-catches">
-    <div style="font-family:'Bebas Neue',serif;font-size:22px;margin-bottom:12px;">Mijn Vangsten</div>
-    <div id="catches-list"><div class="empty">Nog geen vangsten. Start een sessie!</div></div>
+  <div class="page" id="page-vangsten">
+    <div class="tab-switch">
+      <button class="tab-btn active" id="tab-vangsten" onclick="switchVTab('vangsten')">Vangsten</button>
+      <button class="tab-btn" id="tab-sessies" onclick="switchVTab('sessies')">Sessies</button>
+    </div>
+    <div id="vangsten-content"></div>
+    <div id="sessies-content" style="display:none;"></div>
+    <button class="fab" id="fab-btn" onclick="openModal('catch-modal')">+</button>
   </div>
 
-  <!-- STATS -->
-  <div class="page" id="page-stats">
-    <div style="font-family:'Bebas Neue',serif;font-size:22px;margin-bottom:12px;">Statistieken</div>
-    <div class="stat2-grid">
-      <div class="stat2-card"><div class="stat2-val" id="st-n">0</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Totaal vangsten</div></div>
-      <div class="stat2-card"><div class="stat2-val" id="st-s">0</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Sessies</div></div>
-      <div class="stat2-card"><div class="stat2-val" id="st-h">0</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Zwaarste kg</div></div>
-      <div class="stat2-card"><div class="stat2-val" id="st-a">0</div><div style="font-size:11px;color:var(--t2);margin-top:2px;">Gem. gew. kg</div></div>
-    </div>
-    <div style="font-family:'Bebas Neue',serif;font-size:22px;margin-bottom:12px;">Sessie Historie</div>
-    <div id="sess-hist-list"><div class="empty">Nog geen sessies voltooid.</div></div>
+  <!-- STATISTIEKEN -->
+  <div class="page" id="page-statistieken">
+    <div id="stats-content"></div>
   </div>
 
   <!-- MEER -->
   <div class="page" id="page-meer">
-    <div style="font-family:'Bebas Neue',serif;font-size:22px;margin-bottom:12px;">Over KarpLog</div>
-    <div class="card" style="text-align:center;padding:28px;">
-      <div style="font-size:48px;margin-bottom:12px;">🎣</div>
-      <div style="font-family:'Bebas Neue',serif;font-size:26px;margin-bottom:8px;">KarpLog v1.0</div>
-      <div style="font-size:13px;color:var(--t2);line-height:1.6;">Live weersdata via Open-Meteo. Vis-score op basis van temperatuur, wind, luchtdruk en bewolking.</div>
+    <div style="text-align:center;padding:20px 0 24px;">
+      <img src="https://raw.githubusercontent.com/eyybeaj/Karpervissen-app/main/logo.png" onerror="this.style.display='none'" style="width:72px;height:72px;object-fit:contain;margin-bottom:12px;">
+      <div style="font-size:22px;font-weight:900;">KarpLog</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:4px;">Versie 2.0 · Karper vislog</div>
+    </div>
+    <div class="menu-group">
+      <div class="menu-item">
+        <div class="menu-icon">📊</div>
+        <div><div style="font-size:14px;font-weight:700;">Persoonlijke data</div><div style="font-size:11px;color:var(--t2);">Jouw vangsten & statistieken</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon">⚙️</div>
+        <div><div style="font-size:14px;font-weight:700;">Instellingen</div><div style="font-size:11px;color:var(--t2);">App voorkeuren</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+    </div>
+    <div class="menu-group">
+      <div class="menu-item" onclick="exportData()">
+        <div class="menu-icon">📤</div>
+        <div><div style="font-size:14px;font-weight:700;">Exporteer data</div><div style="font-size:11px;color:var(--t2);">Download al je vangsten als JSON</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="clearData()">
+        <div class="menu-icon">🗑️</div>
+        <div><div style="font-size:14px;font-weight:700;color:var(--r);">Data wissen</div><div style="font-size:11px;color:var(--t2);">Verwijder alle vangsten & sessies</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+    </div>
+    <div class="card" style="text-align:center;padding:20px;">
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;">Live weersdata via Open-Meteo · Vis-score algoritme op basis van temperatuur, wind, luchtdruk en bewolking · 14-daagse voorspelling · Neerslag grafiek</div>
     </div>
   </div>
+
+</div>
 </div>
 
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-item active" onclick="goTo('home',this)"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
-  <div class="nav-item" onclick="goTo('catches',this)"><span class="nav-icon">🖼</span><span class="nav-label">Vangsten</span></div>
-  <div class="nav-item" onclick="goTo('stats',this)"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></div>
-  <div class="nav-item" onclick="goTo('meer',this)"><span class="nav-icon">···</span><span class="nav-label">Meer</span></div>
+  <div class="nav-item" onclick="goTo('weer',this)"><span class="nav-icon">⛅</span><span class="nav-label">Weer</span></div>
+  <div class="nav-item" onclick="goTo('vangsten',this)"><span class="nav-icon">🎣</span><span class="nav-label">Vangsten</span></div>
+  <div class="nav-item" onclick="goTo('statistieken',this)"><span class="nav-icon">📊</span><span class="nav-label">Statistieken</span></div>
+  <div class="nav-item" onclick="goTo('meer',this)"><span class="nav-icon">⋯</span><span class="nav-label">Meer</span></div>
 </nav>
 
 <!-- SESSIE MODAL -->
@@ -232,16 +407,16 @@ input::placeholder{color:var(--t3);}
   <div class="modal">
     <div class="handle"></div>
     <div class="modal-title">Sessie Starten</div>
-    <div class="modal-sub">Weer wordt automatisch opgeslagen</div>
-    <div id="weather-snapshot"></div>
-    <div class="label">Locatie</div>
-    <input id="sf-loc" placeholder="bijv. Hoornse Hop">
+    <div class="modal-sub">Weersomstandigheden worden automatisch opgeslagen</div>
+    <div id="sess-weather-snap"></div>
+    <label class="field-label">Locatie / Water</label>
+    <input id="sf-loc" placeholder="bijv. Hoornse Hop, Markermeer">
     <div class="form-row">
-      <div><div class="label">Aas</div><input id="sf-bait" placeholder="Boilies"></div>
-      <div><div class="label">Hengels</div><input id="sf-rods" type="number" placeholder="2" min="1" max="6" value="2"></div>
+      <div><label class="field-label">Aas</label><input id="sf-bait" placeholder="Boilies"></div>
+      <div><label class="field-label">Hengels</label><input id="sf-rods" type="number" placeholder="2" min="1" max="6" value="2"></div>
     </div>
-    <div class="label">Notities</div>
-    <input id="sf-notes" placeholder="Extra info...">
+    <label class="field-label">Notities</label>
+    <input id="sf-notes" placeholder="Rig, spot, diepte...">
     <button class="btn-primary" onclick="startSession()">▶ START SESSIE</button>
     <button class="btn-sec" onclick="closeModal('session-modal')">Annuleren</button>
   </div>
@@ -253,19 +428,21 @@ input::placeholder{color:var(--t3);}
     <div class="handle"></div>
     <div class="modal-title">Vangst Loggen</div>
     <div class="modal-sub">Weer wordt automatisch gekoppeld</div>
-    <div class="label">Soort karper</div>
+    <label class="field-label">Soort karper</label>
     <div class="fish-sel">
-      <div class="fish-opt sel" id="f-schub" onclick="selFish('Schubkarper',this)"><div class="fish-icon">🐟</div><div class="fish-name">Schubkarper</div></div>
-      <div class="fish-opt" id="f-spiegel" onclick="selFish('Spiegelkarper',this)"><div class="fish-icon">🐠</div><div class="fish-name">Spiegelkarper</div></div>
-      <div class="fish-opt" id="f-gras" onclick="selFish('Grasskarper',this)"><div class="fish-icon">🎣</div><div class="fish-name">Grasskarper</div></div>
+      <div class="fish-opt sel" id="f-schub" onclick="selFish('Schubkarper',this)"><div class="fish-opt-icon">🐟</div><div class="fish-opt-name">Schubkarper</div></div>
+      <div class="fish-opt" id="f-spiegel" onclick="selFish('Spiegelkarper',this)"><div class="fish-opt-icon">🐠</div><div class="fish-opt-name">Spiegelkarper</div></div>
+      <div class="fish-opt" id="f-gras" onclick="selFish('Grasskarper',this)"><div class="fish-opt-icon">🎣</div><div class="fish-opt-name">Grasskarper</div></div>
     </div>
     <div class="form-row">
-      <div><div class="label">Gewicht (kg)</div><input id="cf-weight" type="number" step="0.1" min="0" placeholder="0.0"></div>
-      <div><div class="label">Lengte (cm)</div><input id="cf-length" type="number" min="0" placeholder="0"></div>
+      <div><label class="field-label">Gewicht (kg)</label><input id="cf-weight" type="number" step="0.1" min="0" placeholder="0.0"></div>
+      <div><label class="field-label">Lengte (cm)</label><input id="cf-length" type="number" min="0" placeholder="0"></div>
     </div>
-    <div class="label">Spot</div>
-    <input id="cf-spot" placeholder="bijv. Hengel 2">
-    <button class="btn-primary" onclick="saveCatch()">💾 OPSLAAN</button>
+    <label class="field-label">Spot / Hengel</label>
+    <input id="cf-spot" placeholder="bijv. Hengel 2, linker oever">
+    <label class="field-label">Notities</label>
+    <input id="cf-notes" placeholder="Rig, aas, diepte...">
+    <button class="btn-primary" onclick="saveCatch()">💾 VANGST OPSLAAN</button>
     <button class="btn-sec" onclick="closeModal('catch-modal')">Annuleren</button>
   </div>
 </div>
@@ -273,38 +450,87 @@ input::placeholder{color:var(--t3);}
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Config ────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
 const NETLIFY = 'https://splendorous-lokum-eee090.netlify.app/.netlify/functions/weather';
 
-// ── State ─────────────────────────────────────────────────────────
-let weather = null;
-let session = null;
-let sessStart = null;
-let timerInt = null;
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let W = null;
+let LAT = 52.6478, LON = 5.0603;
+let session = null, sessStart = null, timerInt = null;
 let selectedFish = 'Schubkarper';
-let catches = JSON.parse(localStorage.getItem('kl-c') || '[]');
-let sessions = JSON.parse(localStorage.getItem('kl-s') || '[]');
+let catches = JSON.parse(localStorage.getItem('kl8-c') || '[]');
+let sessions = JSON.parse(localStorage.getItem('kl8-s') || '[]');
+let rainView = '2u';
 
-// ── WMO codes ─────────────────────────────────────────────────────
-const WMO = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',63:'🌧️',71:'❄️',80:'🌦️',95:'⛈️'};
-const wmoIcon = c => WMO[c] || WMO[Math.floor((c||0)/10)*10] || '🌡️';
-const DAYS = ['Zo','Ma','Di','Wo','Do','Vr','Za'];
-const MONTHS = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
-const WD = ['N','NO','O','ZO','Z','ZW','W','NW'];
-const toWD = deg => WD[Math.round((deg||0)/45)%8];
-const pad = n => String(n).padStart(2,'0');
-const weekNum = d => { const j=new Date(d.getFullYear(),0,1); return Math.ceil((((d-j)/86400000)+j.getDay()+1)/7); };
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+const WMO_ICON={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️'};
+const WMO_DESC={0:'Helder',1:'Overwegend helder',2:'Gedeeltelijk bewolkt',3:'Bewolkt',45:'Mist',51:'Lichte motregen',61:'Lichte regen',63:'Regen',71:'Sneeuw',80:'Regenbuien',95:'Onweer'};
+const wmoIcon=c=>WMO_ICON[c]||WMO_ICON[Math.floor((c||0)/10)*10]||'🌡️';
+const wmoDesc=c=>WMO_DESC[c]||WMO_DESC[Math.floor((c||0)/10)*10]||'Onbekend';
+const DAYS=['Zo','Ma','Di','Wo','Do','Vr','Za'];
+const DAYS_FULL=['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag'];
+const MONTHS=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+const WD=['N','NO','O','ZO','Z','ZW','W','NW'];
+const toWD=deg=>WD[Math.round((deg||0)/45)%8];
+const pad=n=>String(n).padStart(2,'0');
+const weekNum=d=>{const j=new Date(d.getFullYear(),0,1);return Math.ceil((((d-j)/86400000)+j.getDay()+1)/7);};
 
-// ── Score engine ──────────────────────────────────────────────────
-function calcScore(w) {
-  if (!w) return {score:3,title:'Onbekend',color:'#F5A623',insights:[],points:0};
-  let pts=0; const ins=[];
-  const {temp=16,wind=10,windDir='ZW',pressure=1013,code=3}=w;
-  const SC=['#E55353','#E58A53','#F5A623','#7DC95E','#4CAF6A'];
+const CITIES=[
+  {name:'Hoorn',lat:52.648,lon:5.060},{name:'Amsterdam',lat:52.374,lon:4.890},
+  {name:'Alkmaar',lat:52.631,lon:4.747},{name:'Enkhuizen',lat:52.703,lon:5.295},
+  {name:'Rotterdam',lat:51.924,lon:4.478},{name:'Utrecht',lat:52.091,lon:5.121},
+  {name:'Den Haag',lat:52.079,lon:4.311},{name:'Eindhoven',lat:51.441,lon:5.478},
+  {name:'Groningen',lat:53.219,lon:6.568},{name:'Haarlem',lat:52.387,lon:4.646},
+  {name:'Zwolle',lat:52.516,lon:6.083},{name:'Lelystad',lat:52.518,lon:5.471},
+  {name:'Medemblik',lat:52.768,lon:5.103},{name:'Volendam',lat:52.499,lon:5.071},
+  {name:'Purmerend',lat:52.503,lon:4.960},{name:'Zaandam',lat:52.437,lon:4.813},
+];
+const nearestCity=(lat,lon)=>CITIES.reduce((b,c)=>{const d=Math.hypot(c.lat-lat,c.lon-lon);return d<b.d?{name:c.name,d}:b},{name:'Nederland',d:999}).name;
+
+function moonPhase(date){
+  const known=new Date(2000,0,6);
+  const diff=(new Date(date)-known)/(1000*60*60*24);
+  const phase=((diff%29.53)+29.53)%29.53;
+  if(phase<1.85)return{icon:'🌑',name:'Nieuwe maan'};
+  if(phase<7.38)return{icon:'🌒',name:'Wassende maan'};
+  if(phase<9.22)return{icon:'🌓',name:'Eerste kwartier'};
+  if(phase<14.77)return{icon:'🌔',name:'Bijna vol'};
+  if(phase<16.61)return{icon:'🌕',name:'Volle maan'};
+  if(phase<22.15)return{icon:'🌖',name:'Afnemende maan'};
+  if(phase<23.99)return{icon:'🌗',name:'Laatste kwartier'};
+  return{icon:'🌘',name:'Wassende sikkel'};
+}
+
+function sunTimes(lat,lon,date){
+  const doy=Math.floor((new Date(date)-new Date(date.getFullYear(),0,0))/86400000);
+  const latR=lat*Math.PI/180;
+  const decl=0.4093*Math.sin(2*Math.PI/365*(doy-81));
+  const ha=Math.acos(-Math.tan(latR)*Math.tan(decl));
+  const noon=12-lon/15;
+  const sunrise=noon-ha*180/Math.PI/15;
+  const sunset=noon+ha*180/Math.PI/15;
+  const fmt=h=>{const hr=Math.floor(h),mn=Math.round((h-hr)*60);return `${pad(hr)}:${pad(mn)}`;};
+  return{rise:fmt(sunrise),set:fmt(sunset)};
+}
+
+// ══════════════════════════════════════════
+// SCORE ENGINE
+// ══════════════════════════════════════════
+function calcScore(w){
+  if(!w)return{score:3,title:'Onbekend',color:'#4CAF50',insights:[],points:0};
+  let pts=0;const ins=[];
+  const{temp=16,wind=10,windDir='ZW',pressure=1013,code=3}=w;
+  const SC=['#E55353','#E58A53','#B8963E','#4CAF50','#2D8B3A'];
   const ST=['Slecht','Matig','Redelijk','Goed','Uitstekend'];
 
-  if(temp>=18&&temp<=22){pts+=35;ins.push({c:'g',t:`${temp}°C — optimaal (18-22°C)`});}
-  else if(temp>=15){pts+=25;ins.push({c:'g',t:`${temp}°C — goed, karper actief`});}
+  if(temp>=18&&temp<=22){pts+=35;ins.push({c:'g',t:`${temp}°C — optimaal voor karper (18-22°C)`});}
+  else if(temp>=15&&temp<18){pts+=25;ins.push({c:'g',t:`${temp}°C — goed, karper actief`});}
   else if(temp>22&&temp<=25){pts+=20;ins.push({c:'a',t:`${temp}°C — warm, vroeg ochtend/avond`});}
   else if(temp>25&&temp<=28){pts+=10;ins.push({c:'a',t:`${temp}°C — te warm overdag`});}
   else if(temp>28){pts+=3;ins.push({c:'r',t:`${temp}°C — hittestress`});}
@@ -312,13 +538,13 @@ function calcScore(w) {
   else{pts+=2;ins.push({c:'r',t:`${temp}°C — te koud`});}
 
   const warm=['ZW','W','Z'].includes(windDir),cold=['N','NO','O'].includes(windDir);
-  if(wind>=5&&wind<=20){pts+=warm?25:cold?16:20;ins.push({c:warm?'g':cold?'a':'g',t:`Wind ${wind}km/h ${windDir}${warm?' — warme aanvoer':cold?' — koude aanvoer':''}`});}
+  if(wind>=5&&wind<=20){pts+=warm?25:cold?16:20;ins.push({c:warm?'g':cold?'a':'g',t:`Wind ${wind}km/h ${windDir}${warm?' — warme ZW aanvoer':cold?' — koude aanvoer':''}`});}
   else if(wind>20&&wind<=30){pts+=warm?16:cold?7:12;ins.push({c:'a',t:`Wind ${wind}km/h ${windDir} — matig`});}
   else if(wind>30&&wind<=40){pts+=4;ins.push({c:'r',t:`Wind ${wind}km/h — harde wind`});}
   else if(wind>40){ins.push({c:'r',t:`Storm — niet vissen`});}
-  else{pts+=12;ins.push({c:'a',t:`Windstil — minder zuurstof`});}
+  else{pts+=12;ins.push({c:'a',t:`Windstil — minder zuurstof in water`});}
 
-  if(pressure>=1015&&pressure<=1025){pts+=25;ins.push({c:'g',t:`${pressure} hPa — stabiel, ideaal`});}
+  if(pressure>=1015&&pressure<=1025){pts+=25;ins.push({c:'g',t:`${pressure} hPa — stabiel hoog, ideaal`});}
   else if(pressure>1025){pts+=17;ins.push({c:'a',t:`${pressure} hPa — hoog`});}
   else if(pressure>=1008){pts+=15;ins.push({c:'a',t:`${pressure} hPa — acceptabel`});}
   else if(pressure>=998){pts+=6;ins.push({c:'r',t:`${pressure} hPa — lage druk`});}
@@ -336,278 +562,552 @@ function calcScore(w) {
   return{score,title:ST[score-1],color:SC[score-1],insights:ins,points:pts};
 }
 
-// ── Weer laden ────────────────────────────────────────────────────
-async function loadWeather() {
-  let lat=52.6478, lon=5.0603;
-  try {
-    const pos = await new Promise((res,rej)=>{
-      if(!navigator.geolocation) return rej();
-      navigator.geolocation.getCurrentPosition(res,rej,{timeout:5000});
+const dc=c=>c==='g'?'#4CAF50':c==='a'?'#B8963E':'#E55353';
+const scoreDesc=s=>['Weinig kans vandaag','Beperkte activiteit verwacht','Gemiddelde dag, pak je kansen','Goede omstandigheden!','Perfecte dag — ga vissen!'][s-1];
+
+// ══════════════════════════════════════════
+// WEER LADEN
+// ══════════════════════════════════════════
+async function loadWeather(){
+  try{
+    const pos=await new Promise((res,rej)=>{
+      if(!navigator.geolocation)return rej();
+      navigator.geolocation.getCurrentPosition(res,rej,{timeout:6000});
     });
-    lat=pos.coords.latitude; lon=pos.coords.longitude;
-  } catch(_){}
+    LAT=pos.coords.latitude;LON=pos.coords.longitude;
+  }catch(_){}
 
-  try {
-    const resp = await fetch(`${NETLIFY}?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`);
-    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const d = await resp.json();
-    const c=d.current, dl=d.daily;
+  try{
+    const resp=await fetch(`${NETLIFY}?lat=${LAT.toFixed(4)}&lon=${LON.toFixed(4)}`);
+    if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+    const d=await resp.json();
+    const c=d.current,dl=d.daily,hr=d.hourly;
 
-    const pressurePerDay = Array.from({length:7},(_,i)=>{
-      const sl=(d.hourly?.surface_pressure||[]).slice(i*24,i*24+24).filter(v=>v!=null);
+    const pressurePerDay=Array.from({length:14},(_,i)=>{
+      const sl=(hr?.surface_pressure||[]).slice(i*24,i*24+24).filter(v=>v!=null);
       return sl.length?Math.round(sl.reduce((a,b)=>a+b,0)/sl.length):1013;
     });
 
-    const today = new Date();
-    weather = {
-      temp: Math.round(c.temperature_2m),
-      wind: Math.round(c.windspeed_10m),
-      windDir: toWD(c.winddirection_10m),
-      pressure: Math.round(c.surface_pressure),
-      code: c.weathercode,
-      icon: wmoIcon(c.weathercode),
-      daily: dl.temperature_2m_max.map((_,i)=>{
-        const date=new Date(today); date.setDate(date.getDate()+i);
+    const today=new Date();
+    W={
+      city:nearestCity(LAT,LON),
+      temp:Math.round(c.temperature_2m),
+      feels:Math.round(c.apparent_temperature),
+      wind:Math.round(c.windspeed_10m),
+      windDir:toWD(c.winddirection_10m),
+      pressure:Math.round(c.surface_pressure),
+      code:c.weathercode,
+      icon:wmoIcon(c.weathercode),
+      desc:wmoDesc(c.weathercode),
+      hourly:hr,
+      daily:dl.temperature_2m_max.slice(0,14).map((_,i)=>{
+        const date=new Date(today);date.setDate(date.getDate()+i);
         return{
-          day: i===0?'Vnd':DAYS[date.getDay()],
-          min: Math.round(dl.temperature_2m_min[i]),
-          max: Math.round(dl.temperature_2m_max[i]),
-          code: dl.weathercode[i],
-          icon: wmoIcon(dl.weathercode[i]),
-          windMax: Math.round(dl.windspeed_10m_max?.[i]??10),
-          windDir: toWD(dl.winddirection_10m_dominant?.[i]??225),
-          pressure: pressurePerDay[i],
+          date,i,
+          day:i===0?'Vnd':DAYS[date.getDay()],
+          dayFull:i===0?'Vandaag':DAYS_FULL[date.getDay()],
+          dateStr:`${date.getDate()}-${date.getMonth()+1}`,
+          min:Math.round(dl.temperature_2m_min[i]),
+          max:Math.round(dl.temperature_2m_max[i]),
+          code:dl.weathercode[i],
+          icon:wmoIcon(dl.weathercode[i]),
+          desc:wmoDesc(dl.weathercode[i]),
+          windMax:Math.round(dl.windspeed_10m_max?.[i]??10),
+          windDir:toWD(dl.winddirection_10m_dominant?.[i]??225),
+          pressure:pressurePerDay[i],
+          rain:Math.round((dl.precipitation_sum?.[i]||0)*10)/10,
+          sunrise:sunTimes(LAT,LON,date).rise,
+          sunset:sunTimes(LAT,LON,date).set,
+          moon:moonPhase(date),
         };
-      })
+      }),
     };
-    renderWeather();
-  } catch(e) {
-    document.getElementById('weather-card').innerHTML = `
-      <div class="error-state">
-        <div style="font-size:36px;margin-bottom:8px;">📡</div>
-        <div style="color:var(--r);font-size:13px;margin-bottom:6px;font-weight:500;">Weersdata niet beschikbaar</div>
-        <div style="color:var(--t3);font-size:11px;margin-bottom:14px;">${e.message}</div>
-        <button class="retry-btn" onclick="loadWeather()">↻ Opnieuw proberen</button>
-      </div>`;
-    document.getElementById('week-view').innerHTML = '<span style="color:var(--r);">Geen data</span>';
-    document.getElementById('score-title').textContent = 'Geen data';
-    document.getElementById('score-sub').textContent = 'Weersdata niet beschikbaar';
+    renderAll();
+  }catch(e){
+    console.error(e);
+    showError(e.message);
   }
 }
 
-function renderWeather() {
-  if (!weather) return;
-  const w = weather;
-  const dl = w.daily;
+function showError(msg){
+  const html=`<div style="text-align:center;padding:30px 0;">
+    <div style="font-size:40px;margin-bottom:12px;">📡</div>
+    <div style="color:var(--r);font-size:14px;font-weight:700;margin-bottom:6px;">Weersdata niet beschikbaar</div>
+    <div style="color:var(--t3);font-size:11px;margin-bottom:16px;">${msg}</div>
+    <button onclick="location.reload()" style="background:var(--g2);border:none;border-radius:10px;padding:12px 24px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">↻ Opnieuw proberen</button>
+  </div>`;
+  ['week-view','weer-content'].forEach(id=>document.getElementById(id).innerHTML=html);
+  document.getElementById('score-title').textContent='Geen data';
+  document.getElementById('score-sub').textContent=msg;
+  document.getElementById('best-day-text').textContent='—';
+}
 
-  // Weerkaart
-  const fc = dl.slice(1,6).map(d=>`
-    <div class="forecast-day">
-      <div class="dn">${d.day}</div>
-      <div class="di">${d.icon}</div>
-      <div class="dt">${d.min}°/${d.max}°</div>
-    </div>`).join('');
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function renderAll(){
+  if(!W)return;
+  renderHome();
+  renderWeer();
+  updateStats();
+  renderVangsten();
+  renderSessies();
+  renderStatistieken();
+}
 
-  document.getElementById('weather-card').innerHTML = `
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-      <div>
-        <div style="font-size:12px;color:var(--t2);margin-bottom:4px;">📍 Jouw locatie</div>
-        <div class="w-temp">${w.temp}°</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:4px;">Min: ${dl[0].min}° Max: ${dl[0].max}°</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:2px;">💨 ${w.wind}km/h ${w.windDir} · 🌡 ${w.pressure}hPa</div>
-      </div>
-      <div style="font-size:48px;">${w.icon}</div>
-    </div>
-    <div class="forecast">${fc}</div>`;
+function renderHome(){
+  const w=W,today=new Date();
+  const score=calcScore(w);
 
-  // Score
-  const score = calcScore(w);
-  document.getElementById('score-num').textContent = score.score;
-  document.getElementById('score-num').style.background = score.color;
-  document.getElementById('score-title').textContent = score.title;
-  document.getElementById('score-sub').textContent = ['Weinig kans vandaag','Beperkte activiteit','Gemiddelde dag','Goede omstandigheden','Perfecte dag — ga vissen!'][score.score-1];
-  document.getElementById('score-bar').style.width = (score.score/5*100)+'%';
-  document.getElementById('score-bar').style.background = score.color;
-  document.getElementById('insights').innerHTML = score.insights.map(i=>`
-    <div class="insight">
-      <div class="dot" style="background:${{g:'#4CAF6A',a:'#F5A623',r:'#E55353'}[i.c]};"></div>${i.t}
-    </div>`).join('');
+  // Score kaart
+  document.getElementById('score-num').textContent=score.score;
+  document.getElementById('score-num').style.background=score.color;
+  document.getElementById('score-title').textContent=score.title;
+  document.getElementById('score-sub').textContent=scoreDesc(score.score);
+  document.getElementById('score-bar').style.width=(score.score/5*100)+'%';
+  document.getElementById('score-bar').style.background=score.color;
+  document.getElementById('score-icon').textContent=w.icon;
+  document.getElementById('insights').innerHTML=score.insights.map(i=>`
+    <div class="insight"><div class="dot" style="background:${dc(i.c)};"></div>${i.t}</div>`).join('');
+
+  // Beste visdag
+  let bS=0,bI=0;
+  w.daily.slice(0,7).forEach((d,i)=>{
+    const{score:s}=calcScore({temp:Math.round((d.min+d.max)/2),wind:d.windMax,windDir:d.windDir,pressure:d.pressure,code:d.code});
+    if(s>bS){bS=s;bI=i;}
+  });
+  const bd=w.daily[bI];
+  const bdDate=new Date(today);bdDate.setDate(bdDate.getDate()+bI);
+  document.getElementById('best-day-text').textContent=bI===0?'Vandaag':`${DAYS_FULL[bdDate.getDay()]} ${bdDate.getDate()} ${MONTHS[bdDate.getMonth()]}`;
+  const bde=document.getElementById('best-day-score');
+  bde.textContent=bS;
+  bde.style.background=['#E55353','#E58A53','#B8963E','#4CAF50','#2D8B3A'][bS-1];
 
   // Week
   const LABELS=['Slecht','Matig','Redelijk','Goed','Uitstekend'];
-  const SC=['#E55353','#E58A53','#F5A623','#7DC95E','#4CAF6A'];
-  let bestScore=0, bestIdx=0;
-  const weekScores = dl.map((d,i)=>{
+  document.getElementById('week-view').innerHTML=w.daily.slice(0,7).map((d,i)=>{
     const mw={temp:Math.round((d.min+d.max)/2),wind:d.windMax,windDir:d.windDir,pressure:d.pressure,code:d.code};
-    const {score,color}=calcScore(mw);
-    if(score>bestScore){bestScore=score;bestIdx=i;}
-    return{...d,score,color};
-  });
-  document.getElementById('week-view').innerHTML = weekScores.map((d,i)=>`
-    <div class="week-row">
-      <div style="width:30px;font-size:12px;font-weight:600;color:${i===0?'var(--a)':'var(--t2)'};flex-shrink:0;">${d.day}</div>
-      <div style="font-size:19px;flex-shrink:0;">${d.icon}</div>
-      <div style="font-size:11px;color:var(--t2);font-family:'DM Mono',monospace;width:56px;flex-shrink:0;">${d.min}°/${d.max}°</div>
-      <div class="week-bar-wrap"><div class="week-bar" style="width:${d.score/5*100}%;background:${d.color};"></div></div>
-      <div class="week-score" style="background:${d.color};">${d.score}</div>
-      <div style="width:76px;font-size:10px;font-weight:600;color:${d.color};text-align:right;flex-shrink:0;">${i===bestIdx?'⭐ ':''}${LABELS[d.score-1]}</div>
-    </div>`).join('');
+    const{score:s,color}=calcScore(mw);
+    return`<div class="week-row">
+      <div class="week-day${i===0?' today':''}">${d.day}</div>
+      <div class="week-icon">${d.icon}</div>
+      <div class="week-temps">${d.min}°/${d.max}°</div>
+      <div style="flex:1;font-size:11px;color:var(--t3);">${d.windMax}km/h ${d.windDir} ${d.moon.icon}</div>
+      <div class="week-score-pill" style="background:${color};">${s}</div>
+    </div>`;
+  }).join('');
 
-  // Snapshot in sessie modal
-  document.getElementById('weather-snapshot').innerHTML = `
-    <div class="weather-snapshot">
-      <span style="font-size:30px;">${w.icon}</span>
+  // Community
+  const wk=weekNum(today);
+  document.getElementById('wk-num').textContent=wk;
+  document.getElementById('wk-num2').textContent=wk;
+  document.getElementById('month-lbl').textContent=MONTHS[today.getMonth()];
+  const mc=catches.filter(c=>{const d=new Date(c.time);return d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear();});
+  document.getElementById('month-n').textContent=mc.length+' vissen';
+  document.getElementById('month-h').textContent=mc.length?Math.max(...mc.map(c=>c.weight))+' kg':'—';
+
+  // Sessie snap
+  document.getElementById('sess-weather-snap').innerHTML=`
+    <div class="weather-snap">
+      <span style="font-size:34px;">${w.icon}</span>
       <div style="flex:1;">
-        <div style="font-family:'Bebas Neue',serif;font-size:26px;line-height:1;">${w.temp}°C</div>
-        <div style="font-size:11px;color:var(--t2);font-family:'DM Mono',monospace;">Wind ${w.wind}km/h ${w.windDir} · ${w.pressure}hPa</div>
+        <div style="font-size:26px;font-weight:900;line-height:1;">${w.temp}°C</div>
+        <div style="font-size:11px;color:var(--t2);font-family:'DM Mono',monospace;margin-top:2px;">${w.wind}km/h ${w.windDir} · ${w.pressure}hPa</div>
       </div>
-      <div style="background:${score.color}25;color:${score.color};font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;">Score ${score.score}</div>
+      <div style="background:${score.color}22;color:${score.color};font-size:11px;font-weight:800;padding:6px 10px;border-radius:10px;text-align:center;">Score<br><span style="font-size:20px;">${score.score}</span></div>
     </div>`;
 }
 
-// ── Sessie ────────────────────────────────────────────────────────
-function startSession() {
-  const loc = document.getElementById('sf-loc').value || 'Onbekend';
-  sessStart = Date.now();
-  session = {
-    id: sessStart, startTime: new Date().toISOString(),
-    location: loc, bait: document.getElementById('sf-bait').value || 'Boilies',
-    rods: document.getElementById('sf-rods').value || '2',
-    notes: document.getElementById('sf-notes').value,
-    catches: [],
-    weather: weather ? {temp:weather.temp,icon:weather.icon,wind:weather.wind,windDir:weather.windDir,pressure:weather.pressure} : null
+function renderWeer(){
+  if(!W)return;
+  const w=W,today=new Date();
+  const sun=sunTimes(LAT,LON,today);
+  const moon=moonPhase(today);
+  const score=calcScore(w);
+
+  // Uurlijks
+  const nowHour=today.getHours();
+  const hourlyHTML=Array.from({length:24},(_,i)=>{
+    const hi=nowHour+i;
+    const temp=Math.round(w.hourly?.temperature_2m?.[hi]??w.temp);
+    const code=w.hourly?.weathercode?.[hi]??w.code;
+    const wind=Math.round(w.hourly?.windspeed_10m?.[hi]??w.wind);
+    return`<div class="hour-card${i===0?' now':''}">
+      <div class="hc-time">${i===0?'Nu':pad(hi%24)+':00'}</div>
+      <div class="hc-icon">${wmoIcon(code)}</div>
+      <div class="hc-temp">${temp}°</div>
+      <div class="hc-wind">${wind}km</div>
+    </div>`;
+  }).join('');
+
+  // Neerslag grafiek data
+  const rainData2u=Array.from({length:8},(_,i)=>{
+    return w.hourly?.precipitation?.[nowHour+Math.floor(i*0.25)]??
+           (w.hourly?.precipitation_probability?.[nowHour]??0)/100*2||0;
+  });
+  const rainData24u=Array.from({length:24},(_,i)=>{
+    const hi=nowHour+i;
+    return w.hourly?.precipitation?.[hi]??0;
+  });
+
+  // Bft conversie
+  const bft=v=>{
+    if(v<1)return 0;if(v<6)return 1;if(v<12)return 2;if(v<20)return 3;
+    if(v<29)return 4;if(v<39)return 5;if(v<50)return 6;return 7;
+  };
+
+  // 14 dagen
+  const dagenHTML=w.daily.map((d,i)=>{
+    const mw={temp:Math.round((d.min+d.max)/2),wind:d.windMax,windDir:d.windDir,pressure:d.pressure,code:d.code};
+    const{score:s,color}=calcScore(mw);
+    return`<div class="dag-row">
+      <div class="dag-date"><div class="dag-day">${d.day}</div><div class="dag-dnum">${d.dateStr}</div></div>
+      <div class="dag-icon">${d.icon}</div>
+      <div class="dag-temps"><div class="dag-max">${d.max}°</div><div class="dag-min">${d.min}°</div></div>
+      <div class="dag-info">
+        <div class="dag-wind">💨 ${d.windMax}km/h ${d.windDir}</div>
+        <div class="dag-rain">💧 ${d.rain}mm · ${d.pressure}hPa</div>
+        <div style="font-size:10px;color:var(--t3);">🌅${d.sunrise} 🌇${d.sunset} ${d.moon.icon}</div>
+      </div>
+      <div class="dag-moon" style="display:none;">${d.moon.icon}</div>
+      <div class="dag-score" style="background:${color};">${s}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('weer-content').innerHTML=`
+    <!-- Weer hero -->
+    <div class="card" style="background:linear-gradient(160deg,#0D2010,#122815);border-color:var(--g3);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+        <div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:4px;">📍 ${w.city} · ${today.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'})}</div>
+          <div style="font-size:72px;font-weight:900;line-height:1;">${w.temp}°</div>
+          <div style="font-size:13px;color:var(--t2);margin-top:4px;">${w.desc} · Voelt als ${w.feels}°</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:52px;">${w.icon}</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:4px;">🌅 ${sun.rise}<br>🌇 ${sun.set}</div>
+          <div style="font-size:14px;margin-top:4px;">${moon.icon} <span style="font-size:10px;color:var(--t2);">${moon.name}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11px;">
+        <span style="background:var(--sf);padding:5px 10px;border-radius:8px;border:1px solid var(--br);">💨 ${w.wind}km/h ${w.windDir} · ${bft(w.wind)} Bft</span>
+        <span style="background:var(--sf);padding:5px 10px;border-radius:8px;border:1px solid var(--br);">🌡 ${w.pressure}hPa</span>
+        <span style="background:${score.color}22;color:${score.color};padding:5px 10px;border-radius:8px;font-weight:800;">Score ${score.score} — ${score.title}</span>
+      </div>
+    </div>
+
+    <!-- Neerslag grafiek -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="lbl" style="margin-bottom:0;">Neerslag</div>
+        <div style="display:flex;gap:6px;">
+          <button class="rain-toggle-btn${rainView==='2u'?' active':''}" onclick="setRainView('2u')">2u</button>
+          <button class="rain-toggle-btn${rainView==='24u'?' active':''}" onclick="setRainView('24u')">24u</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+        <div class="rain-stat"><div class="rain-stat-val">${w.hourly?.precipitation?.[nowHour]?.toFixed(1)??0} <span style="font-size:12px;">mm</span></div><div class="rain-stat-lbl">Nu</div></div>
+        <div class="rain-stat"><div class="rain-stat-val">${w.temp}°</div><div class="rain-stat-lbl">Temperatuur</div></div>
+        <div class="rain-stat"><div class="rain-stat-val">${bft(w.wind)} <span style="font-size:12px;">Bft</span></div><div class="rain-stat-lbl">Wind</div></div>
+      </div>
+      <div id="rain-graph-container">${renderRainGraph(rainView==='2u'?rainData2u:rainData24u,rainView)}</div>
+    </div>
+
+    <!-- Uurlijks -->
+    <div class="card">
+      <div class="lbl">Per uur — komende 24 uur</div>
+      <div class="hourly-scroll">${hourlyHTML}</div>
+    </div>
+
+    <!-- 14 dagen -->
+    <div class="card">
+      <div class="lbl">14-daagse voorspelling</div>
+      ${dagenHTML}
+    </div>`;
+
+  // Sla rainData op voor toggle
+  window._rainData2u=rainData2u;
+  window._rainData24u=rainData24u;
+}
+
+function renderRainGraph(data,view){
+  const max=Math.max(...data,2);
+  const bars=data.map((v,i)=>{
+    const pct=Math.max(2,(v/max)*100);
+    const color=v===0?'rgba(74,158,255,.15)':v<1?'rgba(74,158,255,.5)':v<5?'rgba(74,158,255,.8)':'rgba(74,158,255,1)';
+    return`<div style="flex:1;height:${pct}%;background:${color};border-radius:2px 2px 0 0;min-height:3px;"></div>`;
+  }).join('');
+
+  // Tijd labels
+  const now=new Date();
+  const labels=view==='2u'
+    ?[`${pad(now.getHours())}:00`,`${pad((now.getHours()+1)%24)}:00`,`${pad((now.getHours()+2)%24)}:00`]
+    :['Nu',`+6u`,`+12u`,`+18u`,`+24u`];
+
+  // Grenslijn posities
+  const zwaar=max>5?`${100-(5/max)*100}%`:'0%';
+  const matig=max>2?`${100-(2/max)*100}%`:'30%';
+  const licht=`${100-(0.5/max)*100}%`;
+
+  return`<div class="rain-graph-wrap">
+    ${max>5?`<div class="rain-line" style="top:${zwaar};">Zwaar</div>`:''}
+    ${max>2?`<div class="rain-line" style="top:${matig};">Matig</div>`:''}
+    <div class="rain-line" style="bottom:20px;">Licht</div>
+    <div class="rain-bars">${bars}</div>
+    <div class="rain-now-line" style="left:${view==='2u'?'2px':'2px'};"></div>
+  </div>
+  <div class="rain-times">${labels.map(l=>`<span>${l}</span>`).join('')}</div>`;
+}
+
+function setRainView(v){
+  rainView=v;
+  const data=v==='2u'?window._rainData2u:window._rainData24u;
+  document.getElementById('rain-graph-container').innerHTML=renderRainGraph(data,v);
+  document.querySelectorAll('.rain-toggle-btn').forEach(b=>{
+    b.classList.toggle('active',b.textContent===v);
+  });
+}
+
+// ══════════════════════════════════════════
+// SESSIE
+// ══════════════════════════════════════════
+function startSession(){
+  const now=Date.now();sessStart=now;
+  session={
+    id:now,startTime:new Date().toISOString(),
+    location:document.getElementById('sf-loc').value||'Onbekend',
+    bait:document.getElementById('sf-bait').value||'Boilies',
+    rods:document.getElementById('sf-rods').value||'2',
+    notes:document.getElementById('sf-notes').value,
+    catches:[],
+    weather:W?{temp:W.temp,icon:W.icon,wind:W.wind,windDir:W.windDir,pressure:W.pressure,desc:W.desc,city:W.city}:null
   };
   closeModal('session-modal');
   document.getElementById('sess-banner').classList.add('active');
-  document.getElementById('start-btn').style.display = 'none';
+  document.getElementById('start-btn').style.display='none';
   updateSessBanner();
-  timerInt = setInterval(()=>{
+  timerInt=setInterval(()=>{
     const el=Date.now()-sessStart;
     document.getElementById('timer').textContent=`${pad(Math.floor(el/3600000))}:${pad(Math.floor((el%3600000)/60000))}:${pad(Math.floor((el%60000)/1000))}`;
   },1000);
-  showToast('✅ Sessie gestart!');
+  showToast('✅ Sessie gestart! Veel succes!');
 }
 
-function stopSession() {
+function stopSession(){
   clearInterval(timerInt);
-  session.endTime = new Date().toISOString();
-  session.duration = Date.now() - sessStart;
+  session.endTime=new Date().toISOString();
+  session.duration=Date.now()-sessStart;
   sessions.unshift(session);
-  localStorage.setItem('kl-s', JSON.stringify(sessions));
-  showToast(`🎣 ${session.catches.length} vangsten opgeslagen`);
-  session = null; sessStart = null;
+  localStorage.setItem('kl8-s',JSON.stringify(sessions));
+  showToast(`🎣 Sessie klaar: ${session.catches.length} vangsten`);
+  session=null;sessStart=null;
   document.getElementById('sess-banner').classList.remove('active');
-  document.getElementById('start-btn').style.display = 'flex';
-  document.getElementById('timer').textContent = '00:00:00';
-  updateStats(); renderCatches(); renderSessHist();
+  document.getElementById('start-btn').style.display='flex';
+  document.getElementById('timer').textContent='00:00:00';
+  updateStats();renderVangsten();renderSessies();renderStatistieken();
 }
 
-function updateSessBanner() {
-  if (!session) return;
-  const tot = session.catches.reduce((s,c)=>s+c.weight,0).toFixed(1);
-  document.getElementById('sess-info').textContent = `📍 ${session.location} · 🐟 ${session.catches.length} · ⚖️ ${tot}kg`;
+function updateSessBanner(){
+  if(!session)return;
+  document.getElementById('sess-loc').textContent='📍 '+session.location;
+  const tot=session.catches.reduce((s,c)=>s+c.weight,0).toFixed(1);
+  document.getElementById('sess-stats-line').textContent=`🐟 ${session.catches.length} vangsten · ⚖️ ${tot} kg`;
 }
 
-// ── Vangsten ──────────────────────────────────────────────────────
-function selFish(name, el) {
-  selectedFish = name;
+// ══════════════════════════════════════════
+// VANGSTEN
+// ══════════════════════════════════════════
+function selFish(name,el){
+  selectedFish=name;
   document.querySelectorAll('.fish-opt').forEach(b=>b.classList.remove('sel'));
   el.classList.add('sel');
 }
 
-function saveCatch() {
-  if (!session) return;
-  const entry = {
-    id: Date.now(), time: new Date().toISOString(), fish: selectedFish,
-    weight: parseFloat(document.getElementById('cf-weight').value)||0,
-    length: parseInt(document.getElementById('cf-length').value)||0,
-    spot: document.getElementById('cf-spot').value,
-    weather: weather ? {temp:weather.temp,icon:weather.icon,wind:weather.wind,pressure:weather.pressure} : null
+function saveCatch(){
+  const w=W;
+  const entry={
+    id:Date.now(),time:new Date().toISOString(),fish:selectedFish,
+    weight:parseFloat(document.getElementById('cf-weight').value)||0,
+    length:parseInt(document.getElementById('cf-length').value)||0,
+    spot:document.getElementById('cf-spot').value,
+    notes:document.getElementById('cf-notes').value,
+    weather:w?{temp:w.temp,icon:w.icon,wind:w.wind,windDir:w.windDir,pressure:w.pressure,desc:w.desc}:null,
+    sessionId:session?.id||null,
   };
-  session.catches.unshift(entry);
+  if(session)session.catches.unshift(entry);
   catches.unshift(entry);
-  localStorage.setItem('kl-c', JSON.stringify(catches));
-  document.getElementById('cf-weight').value='';
-  document.getElementById('cf-length').value='';
-  document.getElementById('cf-spot').value='';
+  localStorage.setItem('kl8-c',JSON.stringify(catches));
+  ['cf-weight','cf-length','cf-spot','cf-notes'].forEach(id=>document.getElementById(id).value='');
   closeModal('catch-modal');
   updateSessBanner();
-  updateStats(); renderCatches();
-  showToast(`🐟 ${entry.fish} ${entry.weight}kg!`);
+  updateStats();renderVangsten();
+  showToast(`🐟 ${entry.fish} ${entry.weight}kg opgeslagen!`);
 }
 
-function renderCatches() {
+function renderVangsten(){
   const ICONS={'Schubkarper':'🐟','Spiegelkarper':'🐠','Grasskarper':'🎣'};
-  const el = document.getElementById('catches-list');
-  if (!catches.length) { el.innerHTML='<div class="empty">Nog geen vangsten. Start een sessie!</div>'; return; }
-  el.innerHTML = catches.map(c=>{
+  const el=document.getElementById('vangsten-content');
+  if(!catches.length){
+    el.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">🎣</div>
+      <div class="empty-title">Geen vangsten</div>
+      <div class="empty-sub">Log je eerste vangst tijdens een sessie of via de + knop</div>
+      <button class="empty-btn" onclick="openModal('catch-modal')">Vangst toevoegen</button>
+    </div>`;return;
+  }
+  el.innerHTML=`<div class="card">${catches.map(c=>{
     const d=new Date(c.time);
-    return `<div class="card catch-card">
+    return`<div class="catch-item">
       <div class="catch-icon">${ICONS[c.fish]||'🐟'}</div>
-      <div><div class="catch-weight">${c.weight} kg</div><div class="catch-meta">${c.fish}${c.length?` · ${c.length}cm`:''}${c.weather?` · ${c.weather.temp}°C ${c.weather.icon}`:''}</div></div>
+      <div style="flex:1;">
+        <div class="catch-weight">${c.weight} kg</div>
+        <div class="catch-meta">${c.fish}${c.length?` · ${c.length}cm`:''}${c.weather?` · ${c.weather.temp}°C ${c.weather.icon}`:''}</div>
+        ${c.spot?`<div class="catch-meta" style="color:var(--t3);">📍 ${c.spot}</div>`:''}
+      </div>
       <div class="catch-time">${d.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})}<br>${d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})}</div>
     </div>`;
-  }).join('');
+  }).join('')}</div>`;
 }
 
-function renderSessHist() {
-  const el = document.getElementById('sess-hist-list');
-  if (!sessions.length) { el.innerHTML='<div class="empty">Nog geen sessies voltooid.</div>'; return; }
-  el.innerHTML = sessions.map(s=>{
+function renderSessies(){
+  const el=document.getElementById('sessies-content');
+  if(!sessions.length){
+    el.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">Geen sessies</div>
+      <div class="empty-sub">Start je eerste vissessie</div>
+      <button class="empty-btn" onclick="openModal('session-modal')">Sessie starten</button>
+    </div>`;return;
+  }
+  el.innerHTML=sessions.map(s=>{
     const d=new Date(s.startTime),dur=s.duration||0;
     const sh=s.catches.length?Math.max(...s.catches.map(c=>c.weight)):0;
     const tot=s.catches.reduce((a,c)=>a+c.weight,0);
-    return `<div class="card">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-        <div><div style="font-size:14px;font-weight:600;">${d.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short'})}</div>
-        <div style="font-size:11px;color:var(--t2);">📍 ${s.location}${s.weather?` · ${s.weather.temp}°C ${s.weather.icon}`:''}</div></div>
-        <div style="font-size:11px;color:var(--t3);">${Math.floor(dur/3600000)}u${Math.floor((dur%3600000)/60000)}m</div>
+    return`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div>
+          <div style="font-size:15px;font-weight:800;">${d.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short'})}</div>
+          <div style="font-size:12px;color:var(--t2);">📍 ${s.location}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:var(--t3);">${Math.floor(dur/3600000)}u ${Math.floor((dur%3600000)/60000)}m</div>
+          ${s.weather?`<div style="font-size:12px;color:var(--t2);">${s.weather.temp}°C ${s.weather.icon}</div>`:''}
+        </div>
       </div>
-      <div class="sess-hist">
-        <div style="text-align:center;"><div class="sh-val">${s.catches.length}</div><div class="sh-lbl">Vangsten</div></div>
-        <div style="text-align:center;"><div class="sh-val">${sh}kg</div><div class="sh-lbl">Zwaarste</div></div>
-        <div style="text-align:center;"><div class="sh-val">${tot.toFixed(1)}kg</div><div class="sh-lbl">Totaal</div></div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">🎣 ${s.bait} · ${s.rods} hengels</div>
+      <div class="sess-stats">
+        <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--g4);">${s.catches.length}</div><div style="font-size:10px;color:var(--t2);">Vangsten</div></div>
+        <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--g4);">${sh?sh+'kg':'—'}</div><div style="font-size:10px;color:var(--t2);">Zwaarste</div></div>
+        <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--g4);">${tot.toFixed(1)}kg</div><div style="font-size:10px;color:var(--t2);">Totaal</div></div>
       </div>
     </div>`;
   }).join('');
 }
 
-function updateStats() {
-  const n=catches.length, h=n?Math.max(...catches.map(c=>c.weight)):0;
+function switchVTab(tab){
+  document.getElementById('tab-vangsten').classList.toggle('active',tab==='vangsten');
+  document.getElementById('tab-sessies').classList.toggle('active',tab==='sessies');
+  document.getElementById('vangsten-content').style.display=tab==='vangsten'?'block':'none';
+  document.getElementById('sessies-content').style.display=tab==='sessies'?'block':'none';
+}
+
+// ══════════════════════════════════════════
+// STATISTIEKEN
+// ══════════════════════════════════════════
+function renderStatistieken(){
+  const el=document.getElementById('stats-content');
+  const n=catches.length;
+  if(!n){
+    el.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">Geen vangsten</div>
+      <div class="empty-sub">Registreer je vangsten om inzicht te krijgen</div>
+      <button class="empty-btn" onclick="openModal('catch-modal')">Vangst toevoegen</button>
+    </div>`;return;
+  }
+  const h=Math.max(...catches.map(c=>c.weight));
+  const avg=(catches.reduce((s,c)=>s+c.weight,0)/n).toFixed(1);
+  const tot=catches.reduce((s,c)=>s+c.weight,0).toFixed(1);
+  const fishCounts={};
+  catches.forEach(c=>{fishCounts[c.fish]=(fishCounts[c.fish]||0)+1;});
+  const fishHTML=Object.entries(fishCounts).sort((a,b)=>b[1]-a[1]).map(([f,count])=>`
+    <div class="fish-bar" style="margin-bottom:10px;">
+      <div class="fb-row"><span style="font-weight:600;">${f}</span><span>${count} (${Math.round(count/n*100)}%)</span></div>
+      <div class="fb-track" style="height:6px;"><div class="fb-fill" style="width:${count/n*100}%;"></div></div>
+    </div>`).join('');
+
+  el.innerHTML=`
+    <div class="stat2-grid">
+      <div class="stat2-card"><div class="stat2-val">${n}</div><div style="font-size:12px;color:var(--t2);margin-top:4px;">Totaal vangsten</div></div>
+      <div class="stat2-card"><div class="stat2-val">${sessions.length}</div><div style="font-size:12px;color:var(--t2);margin-top:4px;">Sessies</div></div>
+      <div class="stat2-card"><div class="stat2-val">${h}kg</div><div style="font-size:12px;color:var(--t2);margin-top:4px;">Zwaarste</div></div>
+      <div class="stat2-card"><div class="stat2-val">${avg}kg</div><div style="font-size:12px;color:var(--t2);margin-top:4px;">Gemiddeld</div></div>
+    </div>
+    <div class="card">
+      <div class="lbl">Soorten</div>
+      ${fishHTML}
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="lbl">Totaal gewicht gevangen</div>
+      <div style="font-size:52px;font-weight:900;color:var(--g4);">${tot}kg</div>
+    </div>`;
+}
+
+function updateStats(){
+  const n=catches.length,h=n?Math.max(...catches.map(c=>c.weight)):0;
   const avg=n?(catches.reduce((s,c)=>s+c.weight,0)/n).toFixed(1):0;
   document.getElementById('s-n').textContent=n;
   document.getElementById('s-h').textContent=h;
   document.getElementById('s-a').textContent=avg;
-  document.getElementById('st-n').textContent=n;
-  document.getElementById('st-s').textContent=sessions.length;
-  document.getElementById('st-h').textContent=h;
-  document.getElementById('st-a').textContent=avg;
-  const now=new Date(), wk=weekNum(now);
-  document.getElementById('wk-num').textContent=wk;
-  document.getElementById('wk-num2').textContent=wk;
-  document.getElementById('month-lbl').textContent=MONTHS[now.getMonth()];
-  const mc=catches.filter(c=>{const d=new Date(c.time);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-  document.getElementById('month-n').textContent=mc.length;
-  document.getElementById('month-h').textContent=mc.length?Math.max(...mc.map(c=>c.weight))+' kg':'—';
 }
 
-// ── UI helpers ────────────────────────────────────────────────────
-function goTo(page, el) {
+// ══════════════════════════════════════════
+// MEER
+// ══════════════════════════════════════════
+function exportData(){
+  const blob=new Blob([JSON.stringify({catches,sessions,exportDate:new Date().toISOString()},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='karplog-export.json';a.click();
+  showToast('📤 Data geëxporteerd!');
+}
+
+function clearData(){
+  if(confirm('Weet je zeker dat je alle vangsten en sessies wilt verwijderen?')){
+    catches=[];sessions=[];
+    localStorage.removeItem('kl8-c');localStorage.removeItem('kl8-s');
+    updateStats();renderVangsten();renderSessies();renderStatistieken();
+    showToast('🗑️ Data gewist');
+  }
+}
+
+// ══════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════
+function goTo(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   el.classList.add('active');
+  document.getElementById('scroll-wrap').scrollTop=0;
+  const fab=document.getElementById('fab-btn');
+  fab.style.display=page==='vangsten'?'flex':'none';
 }
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-function showToast(msg) {
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2600);
 }
 
-// ── Init ──────────────────────────────────────────────────────────
-updateStats(); renderCatches(); renderSessHist(); loadWeather();
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+updateStats();
+renderVangsten();
+renderSessies();
+renderStatistieken();
+loadWeather();
 </script>
 </body>
 </html>
