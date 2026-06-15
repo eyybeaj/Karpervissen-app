@@ -535,11 +535,12 @@ input::placeholder { color: var(--t3); }
     <div class="handle"></div>
     <div style="font-size:24px;font-weight:900;margin-bottom:4px;" id="cm-title">Vangst Loggen</div>
     <div style="font-size:13px;color:var(--t2);margin-bottom:18px;">Weer & locatie worden automatisch gekoppeld</div>
-    <label class="fl">Soort karper</label>
-    <div class="fish-sel">
+    <label class="fl">Soort vis</label>
+    <div class="fish-sel" style="grid-template-columns:repeat(2,1fr);">
       <button class="fish-opt on" id="f1" onclick="selF('Schubkarper','f1')"><div style="font-size:26px;">🐟</div><div style="font-size:10px;color:var(--t2);margin-top:4px;font-weight:600;">Schubkarper</div></button>
       <button class="fish-opt" id="f2" onclick="selF('Spiegelkarper','f2')"><div style="font-size:26px;">🐠</div><div style="font-size:10px;color:var(--t2);margin-top:4px;font-weight:600;">Spiegelkarper</div></button>
       <button class="fish-opt" id="f3" onclick="selF('Grasskarper','f3')"><div style="font-size:26px;">🎣</div><div style="font-size:10px;color:var(--t2);margin-top:4px;font-weight:600;">Grasskarper</div></button>
+      <button class="fish-opt" id="f4" onclick="selF('Steur','f4')"><div style="font-size:26px;">🦈</div><div style="font-size:10px;color:var(--t2);margin-top:4px;font-weight:600;">Steur</div></button>
     </div>
     <div class="form-row">
       <div><label class="fl">Gewicht (kg)</label><input id="cf-w" type="number" step="0.1" min="0" placeholder="0.0"></div>
@@ -1210,7 +1211,7 @@ function openCatchModal(editId) {
     document.getElementById('cm-title').textContent='Vangst Bewerken';
     selFish = c.fish;
     document.querySelectorAll('.fish-opt').forEach(function(b){b.classList.remove('on');});
-    var fid = c.fish==='Schubkarper'?'f1':c.fish==='Spiegelkarper'?'f2':'f3';
+    var fid = c.fish==='Schubkarper'?'f1':c.fish==='Spiegelkarper'?'f2':c.fish==='Grasskarper'?'f3':'f4';
     document.getElementById(fid).classList.add('on');
     document.getElementById('cf-w').value = c.weight||'';
     document.getElementById('cf-l').value = c.length||'';
@@ -1299,7 +1300,7 @@ function deleteCatch() {
   }
 }
 
-var ICONS={'Schubkarper':'🐟','Spiegelkarper':'🐠','Grasskarper':'🎣'};
+var ICONS={'Schubkarper':'🐟','Spiegelkarper':'🐠','Grasskarper':'🎣','Steur':'🦈'};
 
 function renderVC() {
   var el=document.getElementById('vc');
