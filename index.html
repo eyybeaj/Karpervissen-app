@@ -397,7 +397,7 @@ input::placeholder { color: var(--t3); }
     <div style="font-size:12px;color:var(--t2);margin-bottom:2px;" id="sb-loc">📍 —</div>
     <div style="font-size:12px;color:var(--t2);" id="sb-info">🐟 0 · ⚖️ 0 kg</div>
     <div class="sess-row">
-      <button class="btn-g" onclick="openM('cm')">+ Vangst loggen</button>
+      <button class="btn-g" onclick="openCatchModal()">+ Vangst loggen</button>
       <button class="btn-r" onclick="stopSess()">■ Stoppen</button>
     </div>
   </div>
@@ -467,7 +467,7 @@ input::placeholder { color: var(--t3); }
     </div>
     <div id="vc"></div>
     <div id="sc" style="display:none;"></div>
-    <button class="fab" id="fab" onclick="openM('cm')">+</button>
+    <button class="fab" id="fab" onclick="openCatchModal()">+</button>
   </div>
 
   <!-- STATISTIEKEN -->
@@ -533,8 +533,8 @@ input::placeholder { color: var(--t3); }
 <div class="overlay" id="cm">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="handle"></div>
-    <div style="font-size:24px;font-weight:900;margin-bottom:4px;">Vangst Loggen</div>
-    <div style="font-size:13px;color:var(--t2);margin-bottom:18px;">Weer wordt automatisch gekoppeld</div>
+    <div style="font-size:24px;font-weight:900;margin-bottom:4px;" id="cm-title">Vangst Loggen</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:18px;">Weer & locatie worden automatisch gekoppeld</div>
     <label class="fl">Soort karper</label>
     <div class="fish-sel">
       <button class="fish-opt on" id="f1" onclick="selF('Schubkarper','f1')"><div style="font-size:26px;">🐟</div><div style="font-size:10px;color:var(--t2);margin-top:4px;font-weight:600;">Schubkarper</div></button>
@@ -547,12 +547,26 @@ input::placeholder { color: var(--t3); }
     </div>
     <label class="fl">Spot / Hengel</label>
     <input id="cf-s" placeholder="bijv. Hengel 2">
+    <label class="fl">Foto</label>
+    <input type="file" id="cf-photo" accept="image/*" style="display:none;" onchange="handlePhoto(event)">
+    <button class="btn-s" style="margin-top:0;margin-bottom:12px;" onclick="document.getElementById('cf-photo').click()">📷 Foto toevoegen</button>
+    <div id="cf-preview" style="display:none;margin-bottom:12px;"></div>
     <button class="btn-p" onclick="saveCatch()">💾 VANGST OPSLAAN</button>
+    <button class="btn-s" id="cm-delete" style="display:none;color:var(--r);border-color:var(--r);" onclick="deleteCatch()">🗑️ Vangst verwijderen</button>
     <button class="btn-s" onclick="closeM('cm')">Annuleren</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- DAG DETAIL MODAL -->
+<div class="overlay" id="dm">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div id="dm-content"></div>
+    <button class="btn-s" onclick="closeM('dm')">Sluiten</button>
+  </div>
+</div>
 
 <script>
 var NETLIFY = 'https://splendorous-lokum-eee090.netlify.app/.netlify/functions/weather';
@@ -939,7 +953,7 @@ function renderHome() {
 
     var isBest = i===bI;
 
-    return '<div style="padding:12px 0;border-bottom:1px solid var(--br);"+(i===6?";border-bottom:none":"")+">'+
+    return '<div onclick="showDayDetail('+i+')" style="padding:12px 0;border-bottom:'+(i===6?'none':'1px solid var(--br)')+';cursor:pointer;">'+
       '<div style="display:flex;align-items:center;gap:10px;">'+
         '<div class="week-day'+(i===0?' td':'')+'">'+d.day+'</div>'+
         '<div style="font-size:20px;width:26px;text-align:center;">'+wi(d.code)+'</div>'+
@@ -947,6 +961,7 @@ function renderHome() {
         '<div style="flex:1;font-size:10px;color:var(--t3);">'+d.moon+'</div>'+
         (isBest?'<div style="font-size:9px;color:var(--g4);font-weight:700;margin-right:4px;">BEST</div>':'')+
         '<div class="pill" style="background:'+sc2.c+';">'+sc2.s+'</div>'+
+        '<div style="font-size:14px;color:var(--t3);margin-left:2px;">›</div>'+
       '</div>'+
       '<div style="margin-top:5px;margin-left:36px;font-size:11px;color:'+(sc2.s>=4?'var(--g4)':sc2.s===3?'var(--t2)':'var(--t3)')+';">'+
         reasons.join(' · ')+
@@ -1034,6 +1049,49 @@ function renderWeer() {
     '<div class="card"><div class="lbl">14-daagse voorspelling</div><div style="padding:0 2px;">'+dagHTML+'</div></div>';
 }
 
+function showDayDetail(i) {
+  var d = W.daily[i];
+  var prevP = i>0?W.daily[i-1].pressure:d.pressure;
+  var sc = score({temp:Math.round((d.min+d.max)/2),wind:d.windMax,windDir:d.windDir,pressure:d.pressure,prevPressure:prevP,code:d.code,date:d.date,sunrise:d.sunrise,sunset:d.sunset});
+  var times = bestFishingTimes(d.sunrise, d.sunset);
+
+  var insHTML = sc.ins.map(function(ins){
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--br);font-size:13px;line-height:1.5;"><div style="width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;background:'+dc(ins.c)+';"></div>'+ins.t+'</div>';
+  }).join('');
+
+  document.getElementById('dm-content').innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'+
+      '<div style="font-size:24px;font-weight:900;">'+d.dayFull+' '+d.date.getDate()+' '+MONTHS[d.date.getMonth()]+'</div>'+
+      '<div style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;background:'+sc.c+';">'+sc.s+'</div>'+
+    '</div>'+
+    '<div style="font-size:14px;color:'+sc.c+';font-weight:700;margin-bottom:18px;">'+sc.t+' — '+sdesc(sc.s)+'</div>'+
+    '<div style="display:flex;align-items:center;gap:16px;background:var(--sf);border-radius:14px;padding:16px;margin-bottom:14px;">'+
+      '<div style="font-size:48px;">'+wi(d.code)+'</div>'+
+      '<div style="flex:1;">'+
+        '<div style="font-size:32px;font-weight:900;line-height:1;">'+d.max+'° <span style="font-size:18px;color:var(--t2);">/ '+d.min+'°</span></div>'+
+        '<div style="font-size:12px;color:var(--t2);margin-top:4px;">💨 '+d.windMax+'km/h '+d.windDir+' · 💧 '+d.rain+'mm · '+d.pressure+'hPa</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'+
+      '<div style="background:var(--sf);border-radius:12px;padding:14px;text-align:center;">'+
+        '<div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🌅 Ochtend</div>'+
+        '<div style="font-size:14px;font-weight:700;color:var(--g4);">'+times.morning+'</div>'+
+      '</div>'+
+      '<div style="background:var(--sf);border-radius:12px;padding:14px;text-align:center;">'+
+        '<div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🌇 Avond</div>'+
+        '<div style="font-size:14px;font-weight:700;color:var(--g4);">'+times.evening+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;margin-bottom:18px;font-size:12px;">'+
+      '<div style="flex:1;background:var(--sf);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:22px;">'+d.moon+'</div><div style="color:var(--t2);margin-top:4px;">'+sc.moon.name+'</div></div>'+
+      '<div style="flex:1;background:var(--sf);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:13px;font-weight:700;">🌅 '+d.sunrise+'</div><div style="font-size:13px;font-weight:700;margin-top:4px;">🌇 '+d.sunset+'</div></div>'+
+    '</div>'+
+    '<div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--g4);text-transform:uppercase;margin-bottom:8px;">Waarom deze score?</div>'+
+    '<div style="background:var(--sf);border-radius:12px;padding:4px 14px;margin-bottom:16px;">'+insHTML+'</div>';
+
+  openM('dm');
+}
+
 function go(page, btn) {
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
@@ -1054,7 +1112,7 @@ function closeM(id) {
 }
 
 window.addEventListener('click', function(e) {
-  ['sm','cm'].forEach(function(id) {
+  ['sm','cm','dm'].forEach(function(id) {
     var el=document.getElementById(id);
     if(e.target===el) closeM(id);
   });
@@ -1109,23 +1167,136 @@ function selF(name, id) {
   document.getElementById(id).classList.add('on');
 }
 
+var editingId = null;
+var pendingPhoto = null;
+
+function handlePhoto(e) {
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    // Comprimeer de foto naar max 800px breed
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var maxW = 800;
+      var scale = Math.min(1, maxW/img.width);
+      canvas.width = img.width*scale;
+      canvas.height = img.height*scale;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      pendingPhoto = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('cf-preview').style.display='block';
+      document.getElementById('cf-preview').innerHTML='<img src="'+pendingPhoto+'" style="width:100%;border-radius:12px;border:1px solid var(--br);"><button class="btn-s" style="margin-top:6px;" onclick="removePhoto()">✕ Foto verwijderen</button>';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  pendingPhoto = null;
+  document.getElementById('cf-preview').style.display='none';
+  document.getElementById('cf-preview').innerHTML='';
+  document.getElementById('cf-photo').value='';
+}
+
+function openCatchModal(editId) {
+  editingId = editId || null;
+  pendingPhoto = null;
+  if(editingId) {
+    // Bestaande vangst bewerken
+    var c = catches.filter(function(x){return x.id===editingId;})[0];
+    if(!c) return;
+    document.getElementById('cm-title').textContent='Vangst Bewerken';
+    selFish = c.fish;
+    document.querySelectorAll('.fish-opt').forEach(function(b){b.classList.remove('on');});
+    var fid = c.fish==='Schubkarper'?'f1':c.fish==='Spiegelkarper'?'f2':'f3';
+    document.getElementById(fid).classList.add('on');
+    document.getElementById('cf-w').value = c.weight||'';
+    document.getElementById('cf-l').value = c.length||'';
+    document.getElementById('cf-s').value = c.spot||'';
+    document.getElementById('cm-delete').style.display='block';
+    if(c.photo) {
+      pendingPhoto = c.photo;
+      document.getElementById('cf-preview').style.display='block';
+      document.getElementById('cf-preview').innerHTML='<img src="'+c.photo+'" style="width:100%;border-radius:12px;border:1px solid var(--br);"><button class="btn-s" style="margin-top:6px;" onclick="removePhoto()">✕ Foto verwijderen</button>';
+    } else {
+      removePhoto();
+    }
+  } else {
+    document.getElementById('cm-title').textContent='Vangst Loggen';
+    selFish='Schubkarper';
+    document.querySelectorAll('.fish-opt').forEach(function(b){b.classList.remove('on');});
+    document.getElementById('f1').classList.add('on');
+    ['cf-w','cf-l','cf-s'].forEach(function(id){document.getElementById(id).value='';});
+    document.getElementById('cm-delete').style.display='none';
+    removePhoto();
+  }
+  openM('cm');
+}
+
 function saveCatch() {
+  if(editingId) {
+    // Bewerk bestaande
+    catches = catches.map(function(c){
+      if(c.id===editingId) {
+        c.fish=selFish;
+        c.weight=parseFloat(document.getElementById('cf-w').value)||0;
+        c.length=parseInt(document.getElementById('cf-l').value)||0;
+        c.spot=document.getElementById('cf-s').value;
+        c.photo=pendingPhoto;
+      }
+      return c;
+    });
+    // Ook in sessie bijwerken
+    sessions.forEach(function(s){
+      s.catches=s.catches.map(function(c){
+        if(c.id===editingId){c.fish=selFish;c.weight=parseFloat(document.getElementById('cf-w').value)||0;c.length=parseInt(document.getElementById('cf-l').value)||0;c.spot=document.getElementById('cf-s').value;c.photo=pendingPhoto;}
+        return c;
+      });
+    });
+    try{localStorage.setItem('kl9-c',JSON.stringify(catches));localStorage.setItem('kl9-s',JSON.stringify(sessions));}catch(e){}
+    closeM('cm');
+    updateStats(); renderVC(); renderSC(); renderStats();
+    toast('✏️ Vangst bijgewerkt');
+    editingId=null;
+    return;
+  }
+
   var entry={
     id:Date.now(), time:new Date().toISOString(), fish:selFish,
     weight:parseFloat(document.getElementById('cf-w').value)||0,
     length:parseInt(document.getElementById('cf-l').value)||0,
     spot:document.getElementById('cf-s').value,
+    photo:pendingPhoto,
+    lat:LAT, lon:LON,
     weather:W?{temp:W.temp,icon:wi(W.code),wind:W.wind,windDir:W.windDir,pressure:W.pressure}:null,
     sessId:sess?sess.id:null
   };
   if(sess) sess.catches.unshift(entry);
   catches.unshift(entry);
-  try{localStorage.setItem('kl9-c',JSON.stringify(catches));}catch(e){}
+  try{localStorage.setItem('kl9-c',JSON.stringify(catches));if(sess)localStorage.setItem('kl9-s',JSON.stringify(sessions));}catch(e){
+    toast('⚠️ Opslag vol — verwijder oude foto\'s');
+  }
   ['cf-w','cf-l','cf-s'].forEach(function(id){document.getElementById(id).value='';});
+  removePhoto();
   closeM('cm');
   updateSB();
   updateStats(); renderVC();
   toast('🐟 '+entry.fish+' '+entry.weight+'kg!');
+}
+
+function deleteCatch() {
+  if(!editingId) return;
+  if(confirm('Deze vangst verwijderen?')) {
+    catches = catches.filter(function(c){return c.id!==editingId;});
+    sessions.forEach(function(s){s.catches=s.catches.filter(function(c){return c.id!==editingId;});});
+    try{localStorage.setItem('kl9-c',JSON.stringify(catches));localStorage.setItem('kl9-s',JSON.stringify(sessions));}catch(e){}
+    closeM('cm');
+    updateStats(); renderVC(); renderSC(); renderStats();
+    toast('🗑️ Vangst verwijderd');
+    editingId=null;
+  }
 }
 
 var ICONS={'Schubkarper':'🐟','Spiegelkarper':'🐠','Grasskarper':'🎣'};
@@ -1144,18 +1315,25 @@ function renderVC() {
         '<span style="background:var(--sf);border:1px solid var(--br);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--t2);">💨 '+c.weather.wind+'km/h '+c.weather.windDir+'</span>'+
         '<span style="background:var(--sf);border:1px solid var(--br);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--t2);">⬇ '+c.weather.pressure+'hPa</span>'+
       '</div>':'';
-    return '<div class="catch-item">'+
-      '<div style="font-size:36px;">'+(ICONS[c.fish]||'🐟')+'</div>'+
-      '<div style="flex:1;">'+
-        '<div style="font-size:24px;font-weight:900;line-height:1;">'+c.weight+' kg</div>'+
-        '<div style="font-size:12px;color:var(--t2);margin-top:2px;">'+c.fish+(c.length?' · '+c.length+' cm':'')+'</div>'+
-        (c.spot?'<div style="font-size:11px;color:var(--t3);margin-top:2px;">📍 '+c.spot+'</div>':'')+
-        wHTML+
+    var photoHTML=c.photo?'<img src="'+c.photo+'" style="width:100%;border-radius:10px;margin-top:8px;border:1px solid var(--br);">':'';
+    var mapHTML=(c.lat&&c.lon)?'<a href="https://www.openstreetmap.org/?mlat='+c.lat+'&mlon='+c.lon+'#map=16/'+c.lat+'/'+c.lon+'" target="_blank" style="display:inline-block;margin-top:6px;font-size:11px;color:var(--rain);text-decoration:none;">🗺️ Bekijk visstek op kaart</a>':'';
+    return '<div style="padding:14px 0;border-bottom:1px solid var(--br);cursor:pointer;" onclick="openCatchModal('+c.id+')">'+
+      '<div style="display:flex;align-items:flex-start;gap:12px;">'+
+        '<div style="font-size:36px;">'+(ICONS[c.fish]||'🐟')+'</div>'+
+        '<div style="flex:1;">'+
+          '<div style="font-size:24px;font-weight:900;line-height:1;">'+c.weight+' kg</div>'+
+          '<div style="font-size:12px;color:var(--t2);margin-top:2px;">'+c.fish+(c.length?' · '+c.length+' cm':'')+'</div>'+
+          (c.spot?'<div style="font-size:11px;color:var(--t3);margin-top:2px;">📍 '+c.spot+'</div>':'')+
+          wHTML+
+        '</div>'+
+        '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--t3);text-align:right;flex-shrink:0;">'+
+          d.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})+'<br>'+
+          d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})+
+          '<div style="margin-top:4px;color:var(--g4);">✏️</div>'+
+        '</div>'+
       '</div>'+
-      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--t3);text-align:right;flex-shrink:0;">'+
-        d.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})+'<br>'+
-        d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})+
-      '</div>'+
+      photoHTML+
+      mapHTML+
     '</div>';
   }).join('')+'</div>';
 }
